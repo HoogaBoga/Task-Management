@@ -40,7 +40,7 @@
             @csrf
 
             <div class="form-group">
-                <label for="name">Name</label>
+                <label for="name">Username</label>
                 <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus>
                 @error('name')
                     <span class="error-message">{{ $message }}</span>
