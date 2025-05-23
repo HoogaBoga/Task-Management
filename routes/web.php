@@ -23,7 +23,10 @@ Route::post('/register', [RegisterController::class, 'register']);
 //})->name('change-password');
 
 // Change Password Routes (should be protected by auth middleware)
-Route::middleware('auth')->group(function () {
-    Route::get('/change-password', [ChangePasswordController::class, 'showChangePasswordForm'])->name('change-password');
-    Route::post('/change-password', [ChangePasswordController::class, 'changePassword']);
-});
+//Route::middleware('auth')->group(function () {
+    //Route::get('/change-password', [ChangePasswordController::class, 'showChangePasswordForm'])->name('change-password');
+    //Route::post('/change-password', [ChangePasswordController::class, 'changePassword']);
+//});
+// Change Password Routes (temporarily without auth middleware for testing)
+Route::get('/change-password', [ChangePasswordController::class, 'showChangePasswordForm'])->name('change-password');
+Route::post('/change-password', [ChangePasswordController::class, 'changePassword']);
