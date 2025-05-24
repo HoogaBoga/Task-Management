@@ -37,7 +37,14 @@ class ChangePasswordController extends Controller
             'new_password_confirmation' => 'required',
         ]);
 
+
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
+
+        if (!$user) {
+            // Handle unauthenticated user
+            return back()->withErrors(['message' => 'User not authenticated.']);
+        }
 
         // Check if the old password matches
         if (!Hash::check($request->old_password, $user->password)) {

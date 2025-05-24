@@ -15,8 +15,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-[#5B84AE]">
-    <div class="container w-full max-w-[400px] p-6 bg-[#5B84AE] rounded-lg text-center">
+
+<body class="min-h-screen flex items-center justify-center bg-[#293241]">
+    <div class="container w-full max-w-[400px] p-6 bg-[#293241] rounded-lg text-center">
+
 
         <!-- Back Arrow Button -->
         <div class="flex justify-start mb-6">
@@ -51,7 +53,9 @@
                 <input type="password"
                        id="old_password"
                        name="old_password"
-                       class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#D9D9D9]"
+
+                       class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#FFFFFF]"
+
                        required>
                 <label for="old_password" class="font-extrabold text-xl text-[#FFFFFF]"><br>Enter Old Password</label>
             </div>
@@ -60,7 +64,9 @@
                 <input type="password"
                        id="new_password"
                        name="new_password"
-                       class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#D9D9D9]"
+
+                       class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#FFFFFF]"
+
                        required>
                 <label for="new_password" class="font-extrabold text-xl text-[#FFFFFF]"><br>Enter New Password</label>
             </div>
@@ -69,7 +75,9 @@
                 <input type="password"
                        id="new_password_confirmation"
                        name="new_password_confirmation"
-                       class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#D9D9D9]"
+
+                       class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#FFFFFF]"
+
                        required>
                 <label for="new_password_confirmation" class="font-extrabold text-xl text-[#FFFFFF]"><br>Confirm New Password</label>
             </div>
