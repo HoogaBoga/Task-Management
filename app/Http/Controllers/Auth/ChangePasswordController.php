@@ -37,6 +37,7 @@ class ChangePasswordController extends Controller
             'new_password_confirmation' => 'required',
         ]);
 
+
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
