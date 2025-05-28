@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Krona+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 @import "tailwindcss";
 @source "../views";
@@ -12,4 +13,5 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
     --font-krona: Krona One, "sans-serif";
+    --font-inter: Inter, "sans-serif";
 }
