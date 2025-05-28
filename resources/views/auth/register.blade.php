@@ -99,9 +99,33 @@
                     <div class="w-32 h-32 bg-[#FF9494] rounded-xl"></div>
                 </div>
             </div>
-
-
         </div>
     </div>
+
+    <div id="creationSuccessModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-lg flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl text-center max-w-md w-full relative">
+            <button onclick="document.getElementById('creationSuccessModal').classList.add('hidden')" class="absolute top-3 right-3 md:right-4 text-gray-400 hover:text-gray-600 transition-colors text-2xl leading-none" aria-label="Close Modal">
+                &times;
+            </button>
+            <img src="{{ asset('images/logo-krud.png') }}" alt="Logo KRUD" class="h-16 md:h-20 w-auto mx-auto mb-4 md:mb-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-black mb-2 md:mb-3 font-krona">Success!</h2>
+            <p class="text-black mb-6 md:mb-8">Your account has been successfully created.</p>
+
+            <a href="{{ route('login')" class="inline-block bg-[#336699] text-white font-inter px-10 py-3 rounded-full font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-lg">
+                LOG IN
+            </a>
+        </div>
+    </div>
+
+    @if(session('show_creation_success_modal'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('creationSuccessModal');
+            if(modal){
+                modal.classList.remove('hidden');
+            }
+        });
+    </script>
+    @endif
 </body>
 </html>

@@ -2,8 +2,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
-        "./resources/**/*.blade.php",
-        "./resources/**/*.js",
+        // Make sure these paths correctly point to all your template files
+        "./resources/views/**/*.blade.php",
+        "./resources/js/**/*.js",
+        "./vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php",
+        "./storage/framework/views/*.php",
         // Add any other paths where you use Tailwind classes
     ],
     theme: {
@@ -24,6 +27,32 @@ export default {
                 "4xl": "2rem",
                 "5xl": "2.5rem",
                 "6xl": "3rem",
+            },
+
+            fontFamily: {
+                // This sets 'Instrument Sans' as your default sans-serif font
+                // You can then use `font-sans` class in your HTML
+                sans: [
+                    '"Instrument Sans"', // Font name from Google Fonts
+                    "ui-sans-serif", // Tailwind's default sans-serif stack
+                    "system-ui",
+                    "-apple-system",
+                    "BlinkMacSystemFont",
+                    '"Segoe UI"',
+                    "Roboto",
+                    '"Helvetica Neue"',
+                    "Arial",
+                    '"Noto Sans"',
+                    "sans-serif",
+                    '"Apple Color Emoji"',
+                    '"Segoe UI Emoji"',
+                    '"Segoe UI Symbol"',
+                    '"Noto Color Emoji"',
+                ],
+                // This allows you to use `font-krona` class
+                krona: ['"Krona One"', "sans-serif"], // Fallback to a generic sans-serif
+                // This allows you to use `font-inter` class
+                inter: ['"Inter"', "sans-serif"], // Fallback to a generic sans-serif
             },
         },
     },
