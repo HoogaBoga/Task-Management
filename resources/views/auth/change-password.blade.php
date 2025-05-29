@@ -19,7 +19,6 @@
 <body class="min-h-screen flex items-center justify-center bg-[#293241]">
     <div class="container w-full max-w-[400px] p-6 bg-[#293241] rounded-lg text-center">
 
-
         <!-- Back Arrow Button -->
         <div class="flex justify-start mb-6">
             <a href="{{ route('login') }}" class="flex items-center text-white hover:text-gray-200 transition-colors">

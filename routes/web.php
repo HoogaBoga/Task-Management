@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ChangePasswordController;
+use App\Http\Controllers\AddTaskController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,3 +31,9 @@ Route::post('/register', [RegisterController::class, 'register']);
 // Change Password Routes (temporarily without auth middleware for testing)
 Route::get('/change-password', [ChangePasswordController::class, 'showChangePasswordForm'])->name('change-password');
 Route::post('/change-password', [ChangePasswordController::class, 'changePassword']);
+
+
+
+Route::get('/add-task', [AddTaskController::class, 'create'])->name('tasks.create');
+Route::post('/add-task', [AddTaskController::class, 'store'])->name('tasks.store');
+
