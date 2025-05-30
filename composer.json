@@ -3,12 +3,17 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "supabase-php/supabase-client": "3.x-dev",
+        "supabase/storage-php": "dev-main"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -26,6 +31,12 @@
             "Database\\Seeders\\": "database/seeders/"
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/HoogaBoga/storage-php"
+        }
+    ],
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
@@ -62,6 +73,9 @@
         }
     },
     "config": {
+        "platform": {
+            "php": "8.4.7"
+        },
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
@@ -70,6 +84,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
