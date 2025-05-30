@@ -12,7 +12,7 @@ class Task extends Model
     protected $fillable = [
         'user_id',
         'task_name',
-        'task_priority',  // make sure your database column is named this
+        'priority',
         'task_deadline',
         'task_description',
         'category',

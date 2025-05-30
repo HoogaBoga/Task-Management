@@ -31,7 +31,7 @@
             <div class="flex flex-col items-center gap-4 w-full px-2">
                 <!--home-->
                 <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/home.svg') }}" alt="home" class="w-10 h-10">
+                    <img src="{{ asset('images/home2.svg') }}" alt="home" class="w-10 h-10">
                 </button>
 
                 <!--notifs-->
@@ -41,7 +41,7 @@
 
                 <!--tasks-->
                 <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/calendar.svg') }}" alt="task" class="w-10 h-10">
+                    <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-10 h-10">
                 </button>
 
                 <!--users-->
