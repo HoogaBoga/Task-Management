@@ -9,11 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        *{
+        * {
             font-family: 'Inter', 'sans-serif';
         }
-        body{
-            background-image:url('/Task-Management/public/images/background.svg');
+        body {
+            background-image: url('/Task-Management/public/images/background.svg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -35,7 +35,7 @@
                 </button>
 
                 <!--notifs-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all bg">
                     <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-10 h-10">
                 </button>
 
@@ -58,10 +58,10 @@
                 <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
                     <img src="{{ asset('images/moon.svg') }}" alt="theme" class="w-10 h-10">
                 </button>
-
             </div>
         </div>
     </div>
+
     <!--container-->
     <div class="container w-3/4 bg-white p-8 rounded-lg mr-[80px]">
         <!-- header -->
@@ -73,7 +73,7 @@
         </div>
 
         <div class="shiz">
-            <form action="" method="POST">
+            <form action="" method="POST" enctype="multipart/form-data">
                 @csrf
                 <!-- row1 -->
                 <div class="form-container flex flex-row gap-8 mb-2">
@@ -84,7 +84,7 @@
                         </div>
                     </div>
 
-                   <div class="flex-1">
+                    <div class="flex-1">
                         <div class="flex flex-col gap-1">
                             <label class="text-[16px] font-extrabold text-[#000000]">Task Priority</label>
                             <div class="flex items-center gap-8 h-full pt-2">
@@ -113,33 +113,47 @@
                     <div class="flex-1">
                         <div class="flex flex-col gap-1">
                             <label for="Category" class="text-[16px] font-extrabold text-[#000000]">Category</label>
-                            <div class="tags-container flex flex-row gap-2 w-full h-[5rem] px-3 py-2 border-2 border-black rounded-[2rem] bg-gray-50">
+                            <div class="tags-container flex flex-row gap-2 w-full h-[2.35rem] px-3 py-2 border-2 border-black rounded-[2rem] bg-gray-50">
                                 <!-- tag1-->
-                                <button class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
                                     <label for="Social Tag">Social</label>
                                 </button>
                                 <!-- tag2-->
-                                <button class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
                                     <label for="Life Tag">life</label>
                                 </button>
                                 <!-- tag3-->
-                                <button class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
                                     <label for="Sports Tag">Sports</label>
                                 </button>
                                 <!-- tag4-->
-                                <button class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
                                     <label for="School Tag">School</label>
                                 </button>
                                 <!--add tag-->
-                                <button class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
                                     <img src="{{ asset('images/add.svg') }}" alt="Add Tag" class="w-4 h-4">
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- row 3 -->
+                <!--row3-->
+                <div class="flex-1">
+                    <div class="input1 flex flex-col gap-1">
+                        <label for="task-image" class="text-[16px] font-extrabold text-[#000000]">Image</label>
+                            <div class="relative">
+                                <input type="file" id="task-image" name="task-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] px-3 py-1 text-center truncate">
+                                    <span id="file-name" class="text-sm">Choose file</span>
+                                </div>
+                            </div>
+                            <div id="image-preview" class="mt-2 hidden">
+                                <img id="preview" src="#" alt="Preview" class="max-h-20 rounded-[1rem] border border-gray-300">
+                            </div>
+                    </div>
+                </div>
+                <!-- row 4 -->
                 <div class="mb-6">
                     <div class="input1 flex flex-col gap-1 mb-4">
                         <label for="task-description" class="text-[16px] font-extrabold text-[#000000]">Task Description</label>
@@ -152,12 +166,35 @@
                         </button>
                     </div>
                 </div>
-
             </form>
-
         </div>
-
     </div>
-
 </body>
+<script>
+    document.getElementById('task-image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const fileName = document.getElementById('file-name');
+        const previewContainer = document.getElementById('image-preview');
+        const preview = document.getElementById('preview');
+
+        if (file) {
+            fileName.textContent = file.name;
+
+            // Show preview if it's an image
+            if (file.type.match('image.*')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    previewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.classList.add('hidden');
+            }
+        } else {
+            fileName.textContent = 'Choose file';
+            previewContainer.classList.add('hidden');
+        }
+    });
+</script>
 </html>
