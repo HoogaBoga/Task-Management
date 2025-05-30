@@ -34,8 +34,8 @@ Route::post('/change-password', [ChangePasswordController::class, 'changePasswor
 
 
 
-Route::get('/add-task', [AddTaskController::class, 'create'])->name('tasks.create');
-Route::post('/add-task', [AddTaskController::class, 'store'])->name('tasks.store');
+Route::get('/tasks/create', [AddTaskController::class, 'create'])->name('tasks.create');
+Route::post('/tasks', [AddTaskController::class, 'store'])->name('tasks.store');
 
 Route::get('/user', function ()
 {
