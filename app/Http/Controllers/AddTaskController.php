@@ -33,7 +33,7 @@ class AddTaskController extends Controller
         // Create the task with correct field names
         $task = Task::create([
             'task_name' => $validated['task-name'],
-            'task_priority' => $validated['priority'],
+            'priority' => $validated['priority'],
             'task_deadline' => $validated['task-deadline'],
             'task_description' => $validated['task-description'],
             'category' => $validated['categories'],
