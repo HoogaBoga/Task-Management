@@ -1,4 +1,4 @@
-<?php
+  <?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
@@ -36,4 +36,9 @@ Route::post('/change-password', [ChangePasswordController::class, 'changePasswor
 
 Route::get('/add-task', [AddTaskController::class, 'create'])->name('tasks.create');
 Route::post('/add-task', [AddTaskController::class, 'store'])->name('tasks.store');
+
+Route::get('/user', function ()
+{
+    return view('user');
+});
 
