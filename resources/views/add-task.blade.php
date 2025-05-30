@@ -35,7 +35,7 @@
                 </button>
 
                 <!--notifs-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all bg">
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all text-blue-800">
                     <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-10 h-10">
                 </button>
 
@@ -113,25 +113,30 @@
                     <div class="flex-1">
                         <div class="flex flex-col gap-1">
                             <label for="Category" class="text-[16px] font-extrabold text-[#000000]">Category</label>
+                            <input type="hidden" id="selected-categories" name="categories">
                             <div class="tags-container flex flex-row gap-2 w-full h-[2.35rem] px-3 py-2 border-2 border-black rounded-[2rem] bg-gray-50">
                                 <!-- tag1-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
-                                    <label for="Social Tag">Social</label>
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="social" onclick="toggleCategory(this)">
+                                    Social
+                                    <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
                                 <!-- tag2-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
-                                    <label for="Life Tag">life</label>
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="life" onclick="toggleCategory(this)">
+                                    Life
+                                    <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
                                 <!-- tag3-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
-                                    <label for="Sports Tag">Sports</label>
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="sports" onclick="toggleCategory(this)">
+                                    Sports
+                                    <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
                                 <!-- tag4-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
-                                    <label for="School Tag">School</label>
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="school" onclick="toggleCategory(this)">
+                                    School
+                                    <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
                                 <!--add tag-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400">
+                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" onclick="addNewCategory()">
                                     <img src="{{ asset('images/add.svg') }}" alt="Add Tag" class="w-4 h-4">
                                 </button>
                             </div>
@@ -171,6 +176,70 @@
     </div>
 </body>
 <script>
+
+    let selectedCategories = [];
+
+    function toggleCategory(button) {
+        const value = button.dataset.value;
+        const isSelected = button.classList.contains('bg-blue-100');
+
+        if (isSelected) {
+            // Remove from selected
+            button.classList.remove('bg-blue-100', 'border-blue-400');
+            selectedCategories = selectedCategories.filter(cat => cat !== value);
+        } else {
+            // Add to selected
+            button.classList.add('bg-blue-100', 'border-blue-400');
+            selectedCategories.push(value);
+        }
+
+        // Update hidden input value
+        document.getElementById('selected-categories').value = selectedCategories.join(',');
+    }
+
+    function addNewCategory() {
+        const newCategory = prompt("Enter new category name:");
+        if (newCategory && newCategory.trim() !== '') {
+            const normalizedCategory = newCategory.trim().toLowerCase();
+
+            // Check if already exists
+            const existingTags = Array.from(document.querySelectorAll('.tag-toggle')).map(btn => btn.dataset.value);
+            if (!existingTags.includes(normalizedCategory)) {
+                // Create new button
+                const container = document.querySelector('.tags-container');
+                const addButton = container.querySelector('button:last-child');
+
+                const newButton = document.createElement('button');
+                newButton.type = 'button';
+                newButton.className = 'tag-toggle flex items-center justify-center px-3 py-1 rounded-lg gap-1 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group';
+                newButton.dataset.value = normalizedCategory;
+                newButton.innerHTML = `
+                    ${newCategory.trim()}
+                    <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
+                `;
+                newButton.onclick = function() { toggleCategory(this); };
+
+                // Insert before the add button
+                container.insertBefore(newButton, addButton);
+            } else {
+                alert('This category already exists!');
+            }
+        }
+    }
+
+    function removeTag(event, tagButton) {
+        // Prevent the tag click from triggering
+        event.stopPropagation();
+
+        // Remove from selected categories if it was selected
+        const value = tagButton.dataset.value;
+        selectedCategories = selectedCategories.filter(cat => cat !== value);
+        document.getElementById('selected-categories').value = selectedCategories.join(',');
+
+        // Remove the tag from DOM
+        tagButton.remove();
+    }
+
     document.getElementById('task-image').addEventListener('change', function(e) {
         const file = e.target.files[0];
         const fileName = document.getElementById('file-name');
@@ -180,7 +249,7 @@
         if (file) {
             fileName.textContent = file.name;
 
-            // Show preview if it's an image
+            //show preview if image ang file
             if (file.type.match('image.*')) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
