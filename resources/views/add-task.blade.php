@@ -22,8 +22,48 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center w-screen">
+
+    <!-- Sidebar -->
+    <div class="fixed right-0 top-0 h-3/4 w-[80px] flex flex-col items-center z-10">
+        <!--background-->
+        <div class="w-full h-full bg-[#F1F2F6] rounded-b-[60px] pt-4 pb-4 flex flex-col items-center justify-between">
+            <!--top icons-->
+            <div class="flex flex-col items-center gap-4 w-full px-2">
+                <!--home-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/home.svg') }}" alt="home" class="w-10 h-10">
+                </button>
+
+                <!--notifs-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-10 h-10">
+                </button>
+
+                <!--tasks-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/calendar.svg') }}" alt="task" class="w-10 h-10">
+                </button>
+
+                <!--users-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/users.svg') }}" alt="users" class="w-10 h-10">
+                </button>
+
+                <!--add-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/add.svg') }}" alt="add" class="w-10 h-10">
+                </button>
+
+                <!--theme-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/moon.svg') }}" alt="theme" class="w-10 h-10">
+                </button>
+
+            </div>
+        </div>
+    </div>
     <!--container-->
-    <div class="container w-3/4 bg-white p-8 rounded-lg">
+    <div class="container w-3/4 bg-white p-8 rounded-lg mr-[80px]">
         <!-- header -->
         <div class="header flex items-center">
             <h1 class="header text-[28px] font-bold">Add Task</h1>
@@ -44,25 +84,18 @@
                         </div>
                     </div>
 
-                    <div class="flex-1">
+                   <div class="flex-1">
                         <div class="flex flex-col gap-1">
-                            <label for="team-members" class="text-[16px] font-extrabold text-[#000000]">Team Members</label>
-                            <div class="flex gap-3">
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 1" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 2" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 3" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 4" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/add.svg') }}" alt="Add Member" class="w-6 h-6">
-                                </button>
+                            <label class="text-[16px] font-extrabold text-[#000000]">Task Priority</label>
+                            <div class="flex items-center gap-8 h-full pt-2">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" id="priority-high" name="priority" value="high" class="w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300">
+                                    <label for="priority-high" class="text-md font-medium text-gray-900">High</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" id="priority-low" name="priority" value="low" class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                                    <label for="priority-low" class="text-md font-medium text-gray-900">Low</label>
+                                </div>
                             </div>
                         </div>
                     </div>
