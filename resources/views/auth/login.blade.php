@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    <div id="creationSuccessModal" class="fixed inset-0 bg-black/75 flex items-center justify-center p-4 hidden z-50">
+    <div id="creationSuccessModal" class="fixed inset-0 bg-black/75 items-center justify-center p-4 hidden z-50">
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl text-center max-w-md w-full relative">
             <button onclick="closeSuccessModal()" class="absolute top-2 right-3 text-gray-500 hover:text-gray-800 text-3xl font-light" aria-label="Close Modal">
                 &times;
@@ -107,6 +107,7 @@
     <script>
          function closeSuccessModal() {
             document.getElementById('creationSuccessModal').classList.add('hidden');
+            document.getElementById('creationSuccessModal').classList.remove('flex');
             document.querySelector('body').classList.remove('modal-open');
         }
 
@@ -116,6 +117,7 @@
 
             if (modal) {
                 modal.classList.remove('hidden');
+                modal.classList.add('flex');
                 body.classList.add('modal-open');
             }
         });
