@@ -67,7 +67,9 @@ class LoginController extends Controller
 
                 $request->session()->regenerate();
 
-                return redirect()->intended('/register')->with('success', 'Successfully Logged in!');
+
+                return redirect()->intended('/change-password')->with('success', 'Successfully Logged in!');
+
 
             } else {
                 // Login failed on Supabase's side
