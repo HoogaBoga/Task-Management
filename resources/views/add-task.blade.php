@@ -22,8 +22,48 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center w-screen">
+
+    <!-- Sidebar -->
+    <div class="fixed right-0 top-0 h-3/4 w-[80px] flex flex-col items-center z-10">
+        <!--background-->
+        <div class="w-full h-full bg-[#F1F2F6] rounded-b-[60px] pt-4 pb-4 flex flex-col items-center justify-between">
+            <!--top icons-->
+            <div class="flex flex-col items-center gap-4 w-full px-2">
+                <!--home-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/home.svg') }}" alt="home" class="w-10 h-10">
+                </button>
+
+                <!--notifs-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-10 h-10">
+                </button>
+
+                <!--tasks-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/calendar.svg') }}" alt="task" class="w-10 h-10">
+                </button>
+
+                <!--users-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/users.svg') }}" alt="users" class="w-10 h-10">
+                </button>
+
+                <!--add-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/add.svg') }}" alt="add" class="w-10 h-10">
+                </button>
+
+                <!--theme-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/moon.svg') }}" alt="theme" class="w-10 h-10">
+                </button>
+
+            </div>
+        </div>
+    </div>
     <!--container-->
-    <div class="container w-3/4 bg-white p-8 rounded-lg">
+    <div class="container w-3/4 bg-white p-8 rounded-lg mr-[80px]">
         <!-- header -->
         <div class="header flex items-center">
             <h1 class="header text-[28px] font-bold">Add Task</h1>
