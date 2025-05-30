@@ -1,0 +1,19 @@
+<svg width="1440" height="1024" viewBox="0 0 1440 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_359_135)">
+<rect width="1440" height="1024" fill="#797979"/>
+<line x1="906.82" y1="926.339" x2="1056.21" y2="23.3349" stroke="black" stroke-width="2"/>
+<line x1="94.1756" y1="854.434" x2="681.176" y2="-0.566058" stroke="black" stroke-width="2"/>
+<ellipse cx="-66.5" cy="67" rx="334.5" ry="319" fill="#3D5A80"/>
+<ellipse cx="1470" cy="322.5" rx="179" ry="158.5" fill="#FF9494"/>
+<ellipse cx="-28.5" cy="901" rx="134.5" ry="110" fill="#D8DCFF"/>
+<ellipse cx="548.5" cy="196.5" rx="184.5" ry="170.5" fill="#D8DCFF"/>
+<ellipse cx="861" cy="1025" rx="141" ry="124" fill="#86BBD8"/>
+<ellipse cx="1063" cy="-3.5" rx="43" ry="39.5" fill="#F2BAE1"/>
+<ellipse cx="1427" cy="1010.5" rx="43" ry="39.5" fill="#336699"/>
+</g>
+<defs>
+<clipPath id="clip0_359_135">
+<rect width="1440" height="1024" fill="white"/>
+</clipPath>
+</defs>
+</svg>
