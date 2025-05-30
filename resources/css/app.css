@@ -15,3 +15,12 @@
     --font-krona: Krona One, "sans-serif";
     --font-inter: Inter, "sans-serif";
 }
+
+body.modal-open #main-content {
+    pointer-events: none;
+    user-select: none;
+}
+
+body.modal-open {
+    overflow: hidden;
+}

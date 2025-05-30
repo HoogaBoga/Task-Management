@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\AddTaskController;
 use Illuminate\Http\Request;
 
 class AddTaskController extends Controller
