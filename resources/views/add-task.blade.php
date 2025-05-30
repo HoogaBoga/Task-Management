@@ -36,7 +36,7 @@
 
                 <!--notifs-->
                 <button class="p-2 rounded-lg hover:bg-gray-200 transition-all text-blue-800">
-                    <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-10 h-10">
+                    <img src="{{ asset('images/bell.svg') }}?v=2" alt="bell" class="w-10 h-10">
                 </button>
 
                 <!--tasks-->
@@ -51,7 +51,7 @@
 
                 <!--add-->
                 <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/add.svg') }}" alt="add" class="w-10 h-10">
+                    <img src="{{ asset('images/add.svg') }}?v=2" alt="add" class="w-10 h-10">
                 </button>
 
                 <!--theme-->
@@ -73,8 +73,13 @@
         </div>
 
         <div class="shiz">
-            <form action="" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @if(session('success'))
+                    <div class="mb-4 p-4 bg-green-100 text-green-700 rounded">
+                        {{ session('success') }}
+                    </div>
+                @endif
                 <!-- row1 -->
                 <div class="form-container flex flex-row gap-8 mb-2">
                     <div class="flex-1">
@@ -264,6 +269,10 @@
             fileName.textContent = 'Choose file';
             previewContainer.classList.add('hidden');
         }
+    });
+    document.querySelector('form').addEventListener('submit', function(e) {
+    document.getElementById('selected-categories').name = 'categories';
+    document.getElementById('selected-categories').value = selectedCategories.join(',');
     });
 </script>
 </html>
