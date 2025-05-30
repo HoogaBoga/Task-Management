@@ -44,25 +44,18 @@
                         </div>
                     </div>
 
-                    <div class="flex-1">
+                   <div class="flex-1">
                         <div class="flex flex-col gap-1">
-                            <label for="team-members" class="text-[16px] font-extrabold text-[#000000]">Team Members</label>
-                            <div class="flex gap-3">
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 1" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 2" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 3" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/user.svg') }}" alt="User 4" class="w-6 h-6">
-                                </button>
-                                <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                                    <img src="{{ asset('images/add.svg') }}" alt="Add Member" class="w-6 h-6">
-                                </button>
+                            <label class="text-[16px] font-extrabold text-[#000000]">Task Priority</label>
+                            <div class="flex items-center gap-8 h-full pt-2">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" id="priority-high" name="priority" value="high" class="w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300">
+                                    <label for="priority-high" class="text-md font-medium text-gray-900">High</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" id="priority-low" name="priority" value="low" class="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                                    <label for="priority-low" class="text-md font-medium text-gray-900">Low</label>
+                                </div>
                             </div>
                         </div>
                     </div>
