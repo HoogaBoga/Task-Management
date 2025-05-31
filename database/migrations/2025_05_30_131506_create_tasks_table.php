@@ -18,7 +18,7 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('auth.users')->onDelete('cascade');
+            $table->foreign('user_id')->references('supabase_id')->on('users')->onDelete('cascade');
 
             $table->text('task_name');
             $table->timestampTz('task_deadline')->nullable();

@@ -85,7 +85,7 @@
                     <div class="flex-1">
                         <div class="input1 flex flex-col gap-1">
                             <label for="task-name" class="text-[16px] font-extrabold text-[#000000]">Task Name</label>
-                            <input type="text" id="task-name" name="task-name" class="rounded-[2rem] w-full px-3 py-1 border-2 border-[#000000] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
+                            <input type="text" id="task-name" name="task_name" class="rounded-[2rem] w-full px-3 py-1 border-2 border-[#000000] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
                         </div>
                     </div>
 
@@ -111,14 +111,14 @@
                     <div class="flex-1">
                         <div class="input2 flex flex-col gap-1">
                             <label for="task-deadline" class="font-extrabold text-[16px] text-[#000000]">Task Deadline</label>
-                            <input type="date" id="task-deadline" name="task-deadline" class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
+                            <input type="date" id="task-deadline" name="task_deadline" class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
                         </div>
                     </div>
 
                     <div class="flex-1">
                         <div class="flex flex-col gap-1">
                             <label for="Category" class="text-[16px] font-extrabold text-[#000000]">Category</label>
-                            <input type="hidden" id="selected-categories" name="categories">
+                            <input type="hidden" id="selected-categories" name="category">
                             <div class="tags-container flex flex-row gap-2 w-full h-[2.35rem] px-3 py-2 border-2 border-black rounded-[2rem] bg-gray-50">
                                 <!-- tag1-->
                                 <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="social" onclick="toggleCategory(this)">
@@ -153,7 +153,7 @@
                     <div class="input1 flex flex-col gap-1">
                         <label for="task-image" class="text-[16px] font-extrabold text-[#000000]">Image</label>
                             <div class="relative">
-                                <input type="file" id="task-image" name="task-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <input type="file" id="task-image" name="task_image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 <div class="border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] px-3 py-1 text-center truncate">
                                     <span id="file-name" class="text-sm">Choose file</span>
                                 </div>
@@ -167,7 +167,7 @@
                 <div class="mb-6">
                     <div class="input1 flex flex-col gap-1 mb-4">
                         <label for="task-description" class="text-[16px] font-extrabold text-[#000000]">Task Description</label>
-                        <textarea id="task-description" name="task-description" class="w-full px-4 py-3 border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y placeholder-gray-400" rows="5" placeholder="Enter detailed task description..."></textarea>
+                        <textarea id="task-description" name="task_description" class="w-full px-4 py-3 border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y placeholder-gray-400" rows="5" placeholder="Enter detailed task description..."></textarea>
                     </div>
 
                     <div class="flex justify-center">
