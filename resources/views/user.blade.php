@@ -72,7 +72,7 @@
 
 <!-- SQUEARE -->
 
-    <main class="main flex-1 flex justify-start items-start p-[40px]">
+    <main class="main flex-1 flex justify-start items-center p-[40px]">
       <section
         class="background-wrapper bg-white rounded-[30px] w-full max-w-[1400px] transition-colors duration-500 p-[60px]"
       >
@@ -188,7 +188,7 @@
   <div class="bg-white dark:bg-[#293241] p-8 rounded-xl w-full max-w-md shadow-lg relative">
     <h2 class="text-xl font-bold mb-4 text-center">Change Password</h2>
     <p class="text-center text-sm font-semibold text-gray-500 mb-5">WORK IN PROGRESSSS</p>
-    
+
     <div class="mb-4">
       <label for="old-password" class="block mb-1 font-bold">Old Password</label>
       <input type="password" id="old-password" class="w-full p-2 rounded border border-gray-300" />
