@@ -43,7 +43,7 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/user', function ()
     {
         return view('user');
-    });
+    })->name('user');
     // Add other routes here that are meant to be protected by Laravel's standard auth
 });
 
