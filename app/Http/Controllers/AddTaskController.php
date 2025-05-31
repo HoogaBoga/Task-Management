@@ -2,81 +2,75 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str; // for UUID generation
-use Supabase\Storage\StorageClient;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Task;
+
 
 class AddTaskController extends Controller
 {
+    // Show the upload form
     public function create()
     {
-        return view('add-task');
+        return view('add-task'); // Make sure resources/views/add-task.blade.php exists
     }
 
+    // Handle the form submission and upload the file to Supabase
     public function store(Request $request)
-    {
-        $user = Auth::user();
-        if (!$user) {
-            // User not logged in - redirect to login or show error
-            return redirect()->route('login')->withErrors('Please login first.');
-        }
+{
+    $user = Auth::user();
 
-        $validated = $request->validate([
-            'task-name' => 'required|string|max:255',
-            'priority' => 'required|in:high,low',
-            'task-deadline' => 'required|date',
-            'task-description' => 'required|string',
-            'task_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'categories' => 'nullable|string',
-        ]);
-
-        $imageUrl = null;
-        if ($request->hasFile('task_image')) {
-            $file = $request->file('task_image');
-            $sanitizedOriginalName = preg_replace('/[^A-Za-z0-9_.\-]/', '', $file->getClientOriginalName());
-            $fileName = 'tasks/' . time() . '_' . $sanitizedOriginalName;
-            $fileContent = file_get_contents($file->getRealPath());
-            $fileMimeType = $file->getMimeType();
-
-            $supabaseApiKey = env('SUPABASE_KEY');
-            $supabaseReferenceId = env('SUPABASE_REFERENCE_ID');
-
-            if (!$supabaseApiKey || !$supabaseReferenceId) {
-                Log::error('Supabase API Key or Reference ID is not configured in .env');
-            } else {
-                try {
-                    $storageClient = new StorageClient($supabaseApiKey, $supabaseReferenceId);
-                    $bucketName = 'task-images';
-                    $filePath = $fileName;
-
-                    $storageClient->upload(
-                        $bucketName,
-                        $filePath,
-                        $fileContent,
-                        ['content-type' => $fileMimeType]
-                    );
-
-                    $imageUrl = $storageClient->getPublicUrl($bucketName, $filePath);
-                } catch (\Exception $e) {
-                    Log::error('Supabase storage error in AddTaskController: ' . $e->getMessage());
-                }
-            }
-        }
-
-        Task::create([
-            'id' => (string) Str::uuid(), // generate UUID for task id
-            'user_id'          => Auth::user()->supabase_id, // <-- Use UUID here
-            'task_name' => $validated['task-name'],
-            'priority' => $validated['priority'],
-            'task_deadline' => $validated['task-deadline'],
-            'task_description' => $validated['task-description'],
-            'category' => $validated['categories'] ?? null,
-            'image_url' => $imageUrl,
-        ]);
-
-        return redirect()->route('tasks.create')->with('success', 'Task created successfully!');
+    if (!$user) {
+        return redirect()->route('login')->with('error', 'Please log in first.');
     }
+
+    $request->validate([
+        'task_name' => 'required|string',
+        'task_description' => 'nullable|string',
+        'task_image' => 'file|image|max:2048',
+    ]);
+
+    $imageUrl = null; // Initialize to null in case no image uploaded or upload fails
+
+    $file = $request->file('task_image');
+
+    if ($file && $file->isValid()) {
+        $bucket = env('SUPABASE_BUCKET');
+        $supabaseUrl = env('SUPABASE_URL');
+        $supabaseKey = env('SUPABASE_SERVICE_ROLE');
+
+        $fileName = 'tasks/' . time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+        $filePath = $file->getRealPath();
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $supabaseKey,
+            'Content-Type' => $file->getMimeType(),
+        ])->put("$supabaseUrl/storage/v1/object/$bucket/$fileName", file_get_contents($filePath));
+
+        if ($response->failed()) {
+            return back()->with('error', 'Failed to upload image to Supabase.');
+        }
+
+        $imageUrl = "$supabaseUrl/storage/v1/object/public/$bucket/$fileName";
+    }
+
+    // Now save task with or without image URL
+    $task = Task::create([
+        'user_id' => $user->supabase_id,
+        'task_name' => $request->task_name,
+        'priority' => $request->priority,
+        'task_deadline' => $request->task_deadline,
+        'task_description' => $request->task_description,
+        'category' => $request->category,
+        'image_url' => $imageUrl,
+    ]);
+
+    return redirect()->route('tasks.create')->with('success', 'Task created successfully!');
 }
+
+
+}
+

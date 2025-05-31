@@ -69,14 +69,13 @@ class LoginController extends Controller
                 // --- Integrate with Laravel's Auth System ---
                 // Find or create a user in your local 'users' table
                 $localUser = User::updateOrCreate(
-                    ['supabase_id' => $supabaseApiUser['id']], // Find by Supabase ID
+                    ['supabase_id' => $supabaseApiUser['id']],
                     [
                         'email' => $supabaseApiUser['email'],
-                        'name' => $supabaseApiUser['user_metadata']['full_name'] ?? 'User', // Get name from metadata
-                        'password' => bcrypt(str()->random(16)), // Set a random local password, Supabase handles real auth
+                        'name' => $supabaseApiUser['user_metadata']['full_name'] ?? 'User',
+                        'password' => bcrypt(str()->random(16)),
                     ]
                 );
-
                 // Log this user into Laravel's authentication system
                 Auth::login($localUser);
                 // --- End Laravel Auth Integration ---
@@ -86,7 +85,7 @@ class LoginController extends Controller
                 Log::info('LOGIN_SUCCESS: Supabase & Laravel login complete for email: ' . $localUser->email . ' ID: ' . $localUser->id);
 
                 // Now redirect to the intended page or a default
-                return redirect()->intended(route('user'))->with('success', 'Successfully Logged in!');
+                return redirect()->intended(route('tasks.create'))->with('success', 'Successfully Logged in!');
 
             } else {
                 $errorData = $response->json();

@@ -4,57 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "207ba954732731f3d9f13cc49a8a46e7",
+    "content-hash": "e9f9fdd760de81450b6b16af72cf312d",
     "packages": [
-        {
-            "name": "bayfrontmedia/php-mime-types",
-            "version": "v2.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bayfrontmedia/php-mime-types.git",
-                "reference": "b14f4c712c5948d3a8485aaf3a6c045454c2e539"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bayfrontmedia/php-mime-types/zipball/b14f4c712c5948d3a8485aaf3a6c045454c2e539",
-                "reference": "b14f4c712c5948d3a8485aaf3a6c045454c2e539",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Bayfront\\MimeTypes\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "John Robinson",
-                    "email": "john@bayfrontmedia.com",
-                    "homepage": "https://www.bayfrontmedia.com"
-                }
-            ],
-            "description": "Simple class used to detect the appropriate MIME type of a file based on it's extension.",
-            "homepage": "https://github.com/bayfrontmedia/php-mime-types",
-            "keywords": [
-                "extension",
-                "file",
-                "mime",
-                "php",
-                "type"
-            ],
-            "support": {
-                "issues": "https://github.com/bayfrontmedia/php-mime-types/issues",
-                "source": "https://github.com/bayfrontmedia/php-mime-types/tree/v2.0.1"
-            },
-            "time": "2024-12-23T20:22:44+00:00"
-        },
         {
             "name": "brick/math",
             "version": "0.12.3",
@@ -3398,77 +3349,6 @@
                 }
             ],
             "time": "2025-04-27T05:50:09+00:00"
-        },
-        {
-            "name": "supabase/storage-php",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/HoogaBoga/storage-php.git",
-                "reference": "4c2de8f92b49f9c67e5c2e6f798e5b7ffe10ddaa"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/HoogaBoga/storage-php/zipball/4c2de8f92b49f9c67e5c2e6f798e5b7ffe10ddaa",
-                "reference": "4c2de8f92b49f9c67e5c2e6f798e5b7ffe10ddaa",
-                "shasum": ""
-            },
-            "require": {
-                "bayfrontmedia/php-mime-types": "^2.0",
-                "guzzlehttp/guzzle": "^7.5 || ^7.8 || ^7.9",
-                "league/uri": "^7.5.1",
-                "vlucas/phpdotenv": "^5.5"
-            },
-            "require-dev": {
-                "allure-framework/allure-phpunit": "1.5",
-                "mockery/mockery": "^1.5",
-                "phpunit/phpunit": "9.6",
-                "squizlabs/php_codesniffer": "3.*"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "": "src/"
-                },
-                "psr-4": {
-                    "Supabase\\Storage\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Supabase\\Storage\\Test\\": "tests/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "jordan",
-                    "email": "jordan@ascensionengineer.com"
-                },
-                {
-                    "name": "norm",
-                    "email": "norm@zerocopylabs.com"
-                },
-                {
-                    "name": "Adolfo",
-                    "email": "adolfo@zerocopylabs.com"
-                },
-                {
-                    "name": "Luis",
-                    "email": "luis@zerocopylabs.com"
-                }
-            ],
-            "description": "Supabase Storage for PHP",
-            "homepage": "https://github.com/supabase-community/storage-php",
-            "keywords": [
-                "storage",
-                "storage-php",
-                "supabase"
-            ],
-            "support": {
-                "source": "https://github.com/HoogaBoga/storage-php/tree/main"
-            },
-            "time": "2025-05-30T17:03:48+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8278,8 +8158,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "supabase-php/supabase-client": 20,
-        "supabase/storage-php": 20
+        "supabase-php/supabase-client": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
