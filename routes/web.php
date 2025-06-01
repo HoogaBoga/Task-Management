@@ -38,6 +38,10 @@ Route::post('/change-password', [ChangePasswordController::class, 'changePasswor
 
 // Other routes that might use Laravel's default auth system can stay in a group
 Route::middleware(['auth'])->group(function(){
+    Route::get('/dashboard', function(){
+        return view('dashboard');
+    })->name('dashboard');
+
     Route::get('/tasks/create', [AddTaskController::class, 'create'])->name('tasks.create');
     Route::post('/tasks', [AddTaskController::class, 'store'])->name('tasks.store');
     Route::get('/user', function ()
