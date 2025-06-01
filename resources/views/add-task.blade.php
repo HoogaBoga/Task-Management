@@ -85,7 +85,7 @@
                     <div class="flex-1">
                         <div class="input1 flex flex-col gap-1">
                             <label for="task-name" class="text-[16px] font-extrabold text-[#000000]">Task Name</label>
-                            <input type="text" id="task-name" name="task_name" class="rounded-[2rem] w-full px-3 py-1 border-2 border-[#000000] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
+                            <input type="text" id="task-name" name="task_name"value="{{ old('task_name') }}" class="rounded-[2rem] w-full px-3 py-1 border-2 border-[#000000] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
                         </div>
                     </div>
 
@@ -104,6 +104,8 @@
                             </div>
                         </div>
                     </div>
+
+
                 </div>
 
                 <!-- row2 -->
@@ -111,7 +113,7 @@
                     <div class="flex-1">
                         <div class="input2 flex flex-col gap-1">
                             <label for="task-deadline" class="font-extrabold text-[16px] text-[#000000]">Task Deadline</label>
-                            <input type="date" id="task-deadline" name="task_deadline" class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
+                            <input type="date" id="task-deadline" name="task_deadline" value="{{ old('task_name') }}" class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
                         </div>
                     </div>
 
@@ -163,11 +165,19 @@
                             </div>
                     </div>
                 </div>
+
+                <label for="status" class="block font-semibold text-gray-700">Status</label>
+<select name="status" id="status" class="w-full p-2 border border-gray-300 rounded-md">
+    <option value="todo">To Do</option>
+    <option value="in_progress">In Progress</option>
+    <option value="completed">Completed</option>
+</select>
+
                 <!-- row 4 -->
                 <div class="mb-6">
                     <div class="input1 flex flex-col gap-1 mb-4">
                         <label for="task-description" class="text-[16px] font-extrabold text-[#000000]">Task Description</label>
-                        <textarea id="task-description" name="task_description" class="w-full px-4 py-3 border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y placeholder-gray-400" rows="5" placeholder="Enter detailed task description..."></textarea>
+                        <textarea id="task-description" name="task_description" value="{{ old('task_description') }}" class="w-full px-4 py-3 border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y placeholder-gray-400" rows="5" placeholder="Enter detailed task description..."></textarea>
                     </div>
 
                     <div class="flex justify-center">
