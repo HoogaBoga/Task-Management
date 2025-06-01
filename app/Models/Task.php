@@ -19,6 +19,7 @@ class Task extends Model
         'task_description',
         'category',
         'image_url',
+        'status'
     ];
 
     /**

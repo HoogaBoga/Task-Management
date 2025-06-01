@@ -85,7 +85,7 @@ class LoginController extends Controller
                 Log::info('LOGIN_SUCCESS: Supabase & Laravel login complete for email: ' . $localUser->email . ' ID: ' . $localUser->id);
 
                 // Now redirect to the intended page or a default
-                return redirect()->intended(route('tasks.create'))->with('success', 'Successfully Logged in!');
+                return redirect()->intended(route('dashboard'))->with('success', 'Successfully Logged in!');
 
             } else {
                 $errorData = $response->json();

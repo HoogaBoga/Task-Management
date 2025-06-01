@@ -46,7 +46,7 @@ class AddTaskController extends Controller
         $supabaseUrl = env('SUPABASE_URL');
         $supabaseKey = env('SUPABASE_SERVICE_ROLE');
 
-        $fileName = 'tasks/' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $fileName = 'tasks/' . $user->id . '_' . time() . '.' . Str::slug($file->getClientOriginalExtension());
 
         try {
             $uploadResponse = Http::withHeaders([
@@ -86,6 +86,8 @@ class AddTaskController extends Controller
             'task_description' => $request->task_description,
             'category' => $request->categories,
             'image_url' => $imageUrl,
+            'status' => $request->input('status', 'todo'), // fallback to 'todo' if none provided
+
         ]);
         Log::info('Task created with ID: ' . $task->id);
     } catch (\Exception $e) {
@@ -93,7 +95,7 @@ class AddTaskController extends Controller
         return back()->with('error', 'Failed to create task.');
     }
 
-    return redirect()->route('tasks.create')->with('success', 'Task created successfully!');
+    return redirect()->route('dashboard')->with('success', 'Task created successfully!');
 }
 
 
