@@ -118,7 +118,7 @@
                     <div class="flex-1">
                         <div class="flex flex-col gap-1">
                             <label for="Category" class="text-[16px] font-extrabold text-[#000000]">Category</label>
-                            <input type="hidden" id="selected-categories" name="category">
+                            <input type="hidden" id="selected-categories" name="categories">
                             <div class="tags-container flex flex-row gap-2 w-full h-[2.35rem] px-3 py-2 border-2 border-black rounded-[2rem] bg-gray-50">
                                 <!-- tag1-->
                                 <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="social" onclick="toggleCategory(this)">
