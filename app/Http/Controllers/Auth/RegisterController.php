@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use function Illuminate\Support\retry;
 
 class RegisterController extends Controller // Extends the base Controller
 {
@@ -26,7 +27,8 @@ class RegisterController extends Controller // Extends the base Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'], // Assuming you might have a local users table too, adjust if not
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8'],
+            'agree_terms' => ['accepted'],
         ]);
 
         if ($validator->fails()) {
@@ -61,7 +63,9 @@ class RegisterController extends Controller // Extends the base Controller
                 // $responseData = $response->json();
                 // Supabase returns user details. If email confirmation is enabled,
                 // user needs to confirm before logging in.
-                return redirect('/')->with('success', 'Registration successful! Please check your email if confirmation is required.');
+                return redirect('/register')
+                                ->with('show_creation_success_modal', true)
+                                ->with('success', 'Registration successful! Please check your email if confirmation is required.');
             } else {
                 $errorData = $response->json();
                 $errorMessage = $errorData['msg'] ?? ($errorData['message'] ?? 'An unknown error occurred during Supabase registration.');
