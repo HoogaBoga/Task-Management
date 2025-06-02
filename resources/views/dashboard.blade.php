@@ -32,6 +32,13 @@
                         </span>
                         <input type="text" placeholder="Search Task" class="bg-gray-100 outline-none w-full h-12 rounded-full pl-12 pr-4 min-w-[250px]">
                     </div>
+                    <!--logout shiz-->
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-gray-500 p-2 rounded-full hover:bg-gray-100">
+                            <img src="{{ asset('images/logout-light.svg') }}" alt="Logout" class="w-8 h-8">
+                        </button>
+                    </form>
                     <button class="text-gray-500 p-2 rounded-full hover:bg-gray-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L16 11.414V16a1 1 0 01-.293.707l-2 2A1 1 0 0112 18v-1.586l-3.707-3.707A1 1 0 018 12V6.414L3.293 4.707A1 1 0 013 4z" />
