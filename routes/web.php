@@ -13,6 +13,8 @@ Route::get('/', function () {
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/login/{provider}/redirect', [LoginController::class, 'redirectToProvider'])->name('login.provider.redirect');
+Route::get('/login/{provider}/callback', [LoginController::class, 'handleProviderCallback'])->name('login.provider.callback');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 

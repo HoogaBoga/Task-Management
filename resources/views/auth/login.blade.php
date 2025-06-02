@@ -62,10 +62,10 @@
                 </div>
 
                 <div>
-                    <button type="button" class="w-full flex items-center justify-center py-3 px-4 border border-black rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-offset-2 focus:ring-indigo-500">
+                    <a href="{{ route('login.provider.redirect', 'google') }}" class="w-full flex items-center justify-center py-3 px-4 border border-black rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-offset-2 focus:ring-indigo-500">
                         <img src="{{ asset('images/social.png') }}" alt="Google" class="h-5 w-5 mr-2">
                         Sign in with Google
-                    </button>
+                    </a>
                 </div>
 
                 <p class="mt-4 text-center text-sm text-gray-600 font-inter"> Don't have an account? <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500">Sign Up</a>
