@@ -103,7 +103,12 @@
               <div class="customization flex flex-col gap-2.5">
                 <button class="orange-button border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-[#F16D45] text-white font-bold" onclick="location.href='/change-password'">Change Password</button>
                 <button class="border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-red-600 text-white font-bold" onclick="handleDelete()">Delete Account</button>
-                <button class="border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-gray-600 text-white font-bold" onclick="location.href='{{ route('logout') }}'">Logout</button>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button class="border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-[#C41E3A] text-white font-bold">
+                        Logout
+                    </button>
+                </form>
                 <button class="save-button border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-[#5B84AE] text-white hidden" id="save-button" onclick="saveDetails()">Save Details</button>
               </div>
             </div>
