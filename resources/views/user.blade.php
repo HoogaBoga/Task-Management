@@ -101,7 +101,7 @@
               <h2 class="section-title text-[18px] font-bold mb-2.5">Control</h2>
 
               <div class="customization flex flex-col gap-2.5">
-                <button class="orange-button border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-[#F16D45] text-white font-bold" onclick="location.href='/change-password'">Change Password</button>
+                <button class="orange-button border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-[#F16D45] text-white font-bold" onclick="location.href='change-password'">Change Password</button>
                 <button class="border-0 px-5 py-2.5 rounded-[10px] text-[14px] cursor-pointer w-fit bg-red-600 text-white font-bold" onclick="handleDelete()">Delete Account</button>
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf

@@ -140,20 +140,45 @@
             </div>
         </div>
 
-        <div class="hidden md:flex fixed right-0 top-0 h-full items-center justify-center px-5">
-            <div class="flex flex-col items-center space-y-3 bg-white p-2 rounded-full shadow-lg border">
-                <button class="p-3 text-gray-700 hover:text-blue-500 rounded-full"><i class="fas fa-home text-xl"></i></button>
-                <button class="p-3 text-gray-700 hover:text-blue-500 rounded-full"><i class="fas fa-bell text-xl"></i></button>
-                <button class="p-3 text-gray-700 hover:text-blue-500 rounded-full"><i class="fas fa-clipboard-list text-xl"></i></button>
-                <button class="p-3 text-gray-700 hover:text-blue-500 rounded-full"><i class="fas fa-users text-xl"></i></button>
-                <div class="py-2">
-                    <button class="bg-[#3b5998] text-white p-4 rounded-full shadow-md hover:bg-blue-700">
-                        <i class="fas fa-plus text-2xl"></i>
-                    </button>
-                </div>
-                <button class="p-3 text-gray-700 hover:text-blue-500 rounded-full"><i class="fas fa-moon text-xl"></i></button>
+         <!-- Sidebar -->
+    <div class="fixed right-0 top-0 h-3/4 w-[80px] flex flex-col items-center z-10">
+        <!--background-->
+        <div class="w-full h-full bg-[#F1F2F6] rounded-b-[60px] pt-4 pb-4 flex flex-col items-center justify-between">
+            <!--top icons-->
+            <div class="flex flex-col items-center gap-4 w-full px-2">
+                <!--home-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/home2.svg') }}" alt="home" class="w-10 h-10">
+                </button>
+
+                <!--notifs-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all text-blue-800">
+                    <img src="{{ asset('images/bell.svg') }}?v=2" alt="bell" class="w-10 h-10">
+                </button>
+
+                <!--tasks-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-10 h-10">
+                </button>
+
+                <!--users-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/users.svg') }}" alt="users" class="w-10 h-10">
+                </button>
+
+                <!--add-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/add.svg') }}?v=2" alt="add" class="w-10 h-10">
+                </button>
+
+                <!--theme-->
+                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
+                    <img src="{{ asset('images/moon.svg') }}" alt="theme" class="w-10 h-10">
+                </button>
             </div>
         </div>
+    </div>
+
     </div>
 
 </body>
