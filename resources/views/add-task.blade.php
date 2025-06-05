@@ -19,53 +19,47 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
+        /* For making dark monochrome icons white (used for the + icon on blue background) */
+        .icon-filter-to-white {
+            filter: brightness(0) invert(1);
+        }
+
+        /* --- IMPORTANT NOTE ON ICON COLORS ---
+           For IMG SVGs to change color with CSS (like with Tailwind text color classes),
+           the SVG file itself MUST be designed to use "currentColor" for its fill/stroke.
+           If your SVGs have hardcoded colors, these CSS methods won't work effectively.
+        */
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center w-screen">
 
-    <!-- Sidebar -->
-    <div class="fixed right-0 top-0 h-3/4 w-[80px] flex flex-col items-center z-10">
-        <!--background-->
-        <div class="w-full h-full bg-[#F1F2F6] rounded-b-[60px] pt-4 pb-4 flex flex-col items-center justify-between">
-            <!--top icons-->
-            <div class="flex flex-col items-center gap-4 w-full px-2">
-                <!--home-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/home2.svg') }}" alt="home" class="w-10 h-10">
-                </button>
-
-                <!--notifs-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all text-blue-800">
-                    <img src="{{ asset('images/bell.svg') }}?v=2" alt="bell" class="w-10 h-10">
-                </button>
-
-                <!--tasks-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-10 h-10">
-                </button>
-
-                <!--users-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/users.svg') }}" alt="users" class="w-10 h-10">
-                </button>
-
-                <!--add-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/add.svg') }}?v=2" alt="add" class="w-10 h-10">
-                </button>
-
-                <!--theme-->
-                <button class="p-2 rounded-lg hover:bg-gray-200 transition-all">
-                    <img src="{{ asset('images/moon.svg') }}" alt="theme" class="w-10 h-10">
-                </button>
-            </div>
+    <aside id="icon-sidebar"
+           class="hidden md:flex fixed top-16 right-0 w-20 bg-slate-100 shadow-xl z-30
+                  flex-col items-center justify-between py-6 rounded-l-2xl">
+        <div class="flex flex-col items-center space-y-2">
+            <a href="{{ route('dashboard') }}" title="Home" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
+                <img src="{{ asset('images/home2.svg') }}" alt="home" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
+            </a>
+            <a href="{{ route('dashboard') }}" title="Notifications" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
+                <img src="{{ asset('images/bell.svg') }}?v=2" alt="bell" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
+            </a>
+            <a href="{{ route('tasks.create') }}" title="Tasks" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
+                <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
+            </a>
+            <a href="{{ route('user') }}" title="Users" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
+                <img src="{{ asset('images/users.svg') }}" alt="users" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
+            </a>
         </div>
-    </div>
 
-    <!--container-->
-    <div class="container w-3/4 bg-white p-8 rounded-lg mr-[80px]">
-        <!-- header -->
-        <div class="header flex items-center">
+        <div class="flex flex-col items-center">
+            <a href="{{ route('tasks.create') }}" title="Add New Task"
+               class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 active:bg-blue-800 transition-all duration-150 ease-in-out hover:scale-105 active:scale-95 hover:shadow-xl">
+                <img src="{{ asset('images/add.svg') }}?v=2" alt="add" class="w-7 h-7 icon-filter-to-white">
+            </a>
+            </div>
+    </aside>
+
+    <div class="container w-3/4 bg-white p-8 rounded-lg mr-[80px]"> <div class="header flex items-center">
             <h1 class="header text-[28px] font-bold">Add Task</h1>
             <button class="ml-4">
                 <img src="{{ asset('images/add.svg') }}" alt="add" class="w-10 h-10 mr-2">
@@ -80,7 +74,6 @@
                         {{ session('success') }}
                     </div>
                 @endif
-                <!-- row1 -->
                 <div class="form-container flex flex-row gap-8 mb-2">
                     <div class="flex-1">
                         <div class="input1 flex flex-col gap-1">
@@ -108,7 +101,6 @@
 
                 </div>
 
-                <!-- row2 -->
                 <div class="form-container flex flex-row gap-8 mb-2">
                     <div class="flex-1">
                         <div class="input2 flex flex-col gap-1">
@@ -120,45 +112,36 @@
                     <div class="flex-1">
                         <div class="flex flex-col gap-1">
                             <label for="Category" class="text-[16px] font-extrabold text-[#000000]">Category</label>
-                            <input type="hidden" id="selected-categories" name="categories">
-                            <div class="tags-container flex flex-row gap-2 w-full h-[2.35rem] px-3 py-2 border-2 border-black rounded-[2rem] bg-gray-50">
-                                <!-- tag1-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="social" onclick="toggleCategory(this)">
+                            <input type="hidden" id="selected-categories" name="categories"> <div class="tags-container flex flex-row gap-2 w-full h-[2.35rem] px-3 py-2 border-2 border-black rounded-[2rem] bg-gray-50 overflow-x-auto">
+                                <button type="button" class="tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group" data-value="social" onclick="toggleCategory(this)">
                                     Social
                                     <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
-                                <!-- tag2-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="life" onclick="toggleCategory(this)">
+                                <button type="button" class="tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group" data-value="life" onclick="toggleCategory(this)">
                                     Life
                                     <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
-                                <!-- tag3-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="sports" onclick="toggleCategory(this)">
+                                <button type="button" class="tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group" data-value="sports" onclick="toggleCategory(this)">
                                     Sports
                                     <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
-                                <!-- tag4-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" data-value="school" onclick="toggleCategory(this)">
+                                <button type="button" class="tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group" data-value="school" onclick="toggleCategory(this)">
                                     School
                                     <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
                                 </button>
-                                <!--add tag-->
-                                <button type="button" class="tag-toggle flex items-center justify-center px-3 py-2 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" onclick="addNewCategory()">
+                                <button type="button" class="tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition" onclick="addNewCategory()">
                                     <img src="{{ asset('images/add.svg') }}" alt="Add Tag" class="w-4 h-4">
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!--row3-->
-                <div class="flex-1">
-                    <div class="input1 flex flex-col gap-1">
+                <div class="flex-1 mb-4"> <div class="input1 flex flex-col gap-1">
                         <label for="task-image" class="text-[16px] font-extrabold text-[#000000]">Image</label>
                             <div class="relative">
                                 <input type="file" id="task-image" name="task_image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 <div class="border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] px-3 py-1 text-center truncate">
-                                    <span id="file-name" class="text-sm">Choose file</span>
-                                </div>
+                                    <span id="file-name" class="text-sm text-gray-500">Choose file</span> </div>
                             </div>
                             <div id="image-preview" class="mt-2 hidden">
                                 <img id="preview" src="#" alt="Preview" class="max-h-20 rounded-[1rem] border border-gray-300">
@@ -166,23 +149,22 @@
                     </div>
                 </div>
 
-                <label for="status" class="block font-semibold text-gray-700">Status</label>
-<select name="status" id="status" class="w-full p-2 border border-gray-300 rounded-md">
-    <option value="todo">To Do</option>
-    <option value="in_progress">In Progress</option>
-    <option value="completed">Completed</option>
-</select>
+                <div class="mb-4"> <label for="status" class="block font-extrabold text-[16px] text-[#000000] mb-1">Status</label>
+                    <select name="status" id="status" class="w-full px-3 py-1 border-2 border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#F1F2F6]">
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
 
-                <!-- row 4 -->
+
                 <div class="mb-6">
                     <div class="input1 flex flex-col gap-1 mb-4">
                         <label for="task-description" class="text-[16px] font-extrabold text-[#000000]">Task Description</label>
-                        <textarea id="task-description" name="task_description" value="{{ old('task_description') }}" class="w-full px-4 py-3 border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y placeholder-gray-400" rows="5" placeholder="Enter detailed task description..."></textarea>
-                    </div>
+                        <textarea id="task-description" name="task_description" class="w-full px-4 py-3 border-2 border-[#000000] rounded-[2rem] bg-[#F1F2F6] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y placeholder-gray-400" rows="5" placeholder="Enter detailed task description...">{{ old('task_description') }}</textarea> </div>
 
                     <div class="flex justify-center">
-                        <button type="submit" class="w-auto bg-[#336699] text-white py-2 px-6 border border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg">
-                            Create Task
+                        <button type="submit" class="w-auto bg-[#336699] text-white py-2 px-6 border border-[#000000] rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg hover:bg-[#29527a] transition-colors"> Create Task
                         </button>
                     </div>
                 </div>
@@ -191,50 +173,56 @@
     </div>
 </body>
 <script>
+    let selectedCategories = []; // Initialize as an empty array
 
-    let selectedCategories = [];
-
-    function toggleCategory(button) {
-        const value = button.dataset.value;
-        const isSelected = button.classList.contains('bg-blue-100');
-
-        if (isSelected) {
-            // Remove from selected
-            button.classList.remove('bg-blue-100', 'border-blue-400');
-            selectedCategories = selectedCategories.filter(cat => cat !== value);
-        } else {
-            // Add to selected
-            button.classList.add('bg-blue-100', 'border-blue-400');
-            selectedCategories.push(value);
-        }
-
-        // Update hidden input value
+    function updateSelectedCategoriesInput() {
         document.getElementById('selected-categories').value = selectedCategories.join(',');
     }
 
-    function addNewCategory() {
-        const newCategory = prompt("Enter new category name:");
-        if (newCategory && newCategory.trim() !== '') {
-            const normalizedCategory = newCategory.trim().toLowerCase();
+    function toggleCategory(button) {
+        const value = button.dataset.value;
+        const isSelected = button.classList.contains('bg-blue-600'); // Using a more distinct selected color
 
-            // Check if already exists
-            const existingTags = Array.from(document.querySelectorAll('.tag-toggle')).map(btn => btn.dataset.value);
-            if (!existingTags.includes(normalizedCategory)) {
-                // Create new button
+        if (isSelected) {
+            button.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+            button.classList.add('border-gray-400'); // Revert to default border
+            selectedCategories = selectedCategories.filter(cat => cat !== value);
+        } else {
+            button.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+            button.classList.remove('border-gray-400');
+            if (!selectedCategories.includes(value)) { // Ensure no duplicates
+                selectedCategories.push(value);
+            }
+        }
+        updateSelectedCategoriesInput();
+    }
+
+    function addNewCategory() {
+        const newCategoryName = prompt("Enter new category name:");
+        if (newCategoryName && newCategoryName.trim() !== '') {
+            const normalizedCategory = newCategoryName.trim().toLowerCase();
+            const existingTag = document.querySelector(`.tag-toggle[data-value="${normalizedCategory}"]`);
+
+            if (!existingTag) {
                 const container = document.querySelector('.tags-container');
-                const addButton = container.querySelector('button:last-child');
+                const addButton = container.querySelector('button:last-child'); // The "add new" button
 
                 const newButton = document.createElement('button');
                 newButton.type = 'button';
-                newButton.className = 'tag-toggle flex items-center justify-center px-3 py-1 rounded-lg gap-1 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group';
+                // Added flex-shrink-0 to new tags as well
+                newButton.className = 'tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group';
                 newButton.dataset.value = normalizedCategory;
-                newButton.innerHTML = `
-                    ${newCategory.trim()}
-                    <span class="delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600" onclick="removeTag(event, this.parentNode)">×</span>
-                `;
+                newButton.textContent = newCategoryName.trim(); // Set text content directly
+
+                // Create and append the delete span
+                const deleteSpan = document.createElement('span');
+                deleteSpan.className = 'delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600';
+                deleteSpan.innerHTML = '×';
+                deleteSpan.onclick = function(event) { removeTag(event, newButton); };
+                newButton.appendChild(deleteSpan);
+
                 newButton.onclick = function() { toggleCategory(this); };
 
-                // Insert before the add button
                 container.insertBefore(newButton, addButton);
             } else {
                 alert('This category already exists!');
@@ -243,46 +231,48 @@
     }
 
     function removeTag(event, tagButton) {
-        // Prevent the tag click from triggering
         event.stopPropagation();
-
-        // Remove from selected categories if it was selected
         const value = tagButton.dataset.value;
         selectedCategories = selectedCategories.filter(cat => cat !== value);
-        document.getElementById('selected-categories').value = selectedCategories.join(',');
-
-        // Remove the tag from DOM
+        updateSelectedCategoriesInput();
         tagButton.remove();
     }
 
     document.getElementById('task-image').addEventListener('change', function(e) {
         const file = e.target.files[0];
-        const fileName = document.getElementById('file-name');
+        const fileNameEl = document.getElementById('file-name');
         const previewContainer = document.getElementById('image-preview');
-        const preview = document.getElementById('preview');
+        const previewEl = document.getElementById('preview');
 
         if (file) {
-            fileName.textContent = file.name;
-
-            //show preview if image ang file
-            if (file.type.match('image.*')) {
+            fileNameEl.textContent = file.name;
+            if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    preview.src = event.target.result;
+                    previewEl.src = event.target.result;
                     previewContainer.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
             } else {
+                previewEl.src = '#'; // Clear previous preview
                 previewContainer.classList.add('hidden');
             }
         } else {
-            fileName.textContent = 'Choose file';
+            fileNameEl.textContent = 'Choose file';
+            previewEl.src = '#';
             previewContainer.classList.add('hidden');
         }
     });
+
+    // Ensure the hidden input for categories is correctly named on form submit
+    // (This might be redundant if `name="categories"` is already on the hidden input,
+    // but good for explicit control if it was initially different)
     document.querySelector('form').addEventListener('submit', function(e) {
-    document.getElementById('selected-categories').name = 'categories';
-    document.getElementById('selected-categories').value = selectedCategories.join(',');
+        const categoriesInput = document.getElementById('selected-categories');
+        if (categoriesInput.name !== 'categories') {
+             categoriesInput.name = 'categories';
+        }
+        updateSelectedCategoriesInput(); // Ensure it's up-to-date before submit
     });
 </script>
 </html>
