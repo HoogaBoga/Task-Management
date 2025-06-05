@@ -61,7 +61,7 @@
                 <div class="flex items-center space-x-4">
                     <img src="https://i.imgur.com/OzA0f2a.jpeg" alt="User" class="w-12 h-12 rounded-full">
                     <div>
-                        <h1 class="text-xl font-bold text-gray-800">Hello, Jarod!</h1>
+                        <h1 class="text-xl font-bold text-gray-800">Hello, $user!</h1>
                         <p class="text-sm text-gray-500">Welcome Back!</p>
                     </div>
                 </div>
@@ -91,7 +91,7 @@
              <div class="flex items-center space-x-4">
                 <img src="https://i.imgur.com/OzA0f2a.jpeg" alt="User" class="w-14 h-14 rounded-full">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Hello, Jarod!</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">Hello, {{ optional(Auth::user())->name ?? 'Guest'}}!</h1>
                     <p class="text-md text-gray-500">Welcome Back!</p>
                 </div>
             </div>
@@ -126,7 +126,7 @@
             <div>
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">To Do</h2>
-                    <a href="#" class="text-blue-500 font-semibold">See All</a>
+
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     @if(isset($tasksByStatus['todo']) && $tasksByStatus['todo']->count())
@@ -151,7 +151,7 @@
             <div>
                 <div class="flex justify-between items-center mb-4">
                      <h2 class="text-2xl font-bold text-gray-800">In Progress</h2>
-                     <a href="#" class="text-blue-500 font-semibold">See All</a>
+
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     @if(isset($tasksByStatus['in_progress']) && $tasksByStatus['in_progress']->count())
@@ -176,7 +176,7 @@
             <div>
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">Completed</h2>
-                    <a href="#" class="text-blue-500 font-semibold">See All</a>
+
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     @if(isset($tasksByStatus['completed']) && $tasksByStatus['completed']->count())
