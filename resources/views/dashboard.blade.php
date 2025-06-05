@@ -126,21 +126,35 @@
             <div>
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">To Do</h2>
-
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="flex overflow-x-auto pb-4 space-x-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     @if(isset($tasksByStatus['todo']) && $tasksByStatus['todo']->count())
                         @foreach ($tasksByStatus['todo'] as $task)
-                            <div class="rounded-2xl p-4 shadow-lg text-white" style="background-color: #336699;">
+                            <div class="rounded-2xl p-4 shadow-lg text-black min-w-[280px] flex-shrink-0 bg-[#336699] cursor-pointer hover:shadow-xl transition-shadow" onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
                                 @if($task->image_url)
                                     <img src="{{ $task->image_url }}" alt="Task Image" class="w-full h-28 object-cover rounded-lg mb-3" />
                                 @endif
                                 <h3 class="font-bold text-lg">{{ $task->task_name }}</h3>
-                                <p class="mt-1 text-sm opacity-90">{{ Str::limit($task->task_description, 80) }}</p>
+                                <div class="flex justify-between mt-2 text-sm">
+                                    <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No task_deadline' }}</span>
+                                    <span class="px-2 py-1 rounded-full text-xs {{
+                                        $task->priority === 'high' ? 'bg-red-400' :
+                                        ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
+                                    }}">
+                                        {{ ucfirst($task->priority) }}
+                                    </span>
+                                </div>
+                                @if($task->category)
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach(explode(',', $task->category) as $category)
+                                            <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">{{ trim($tag) }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     @else
-                         <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48">
+                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48 min-w-[280px]">
                             <p class="text-gray-400">No tasks to do.</p>
                         </div>
                     @endif
@@ -150,22 +164,36 @@
             {{-- In Progress Section --}}
             <div>
                 <div class="flex justify-between items-center mb-4">
-                     <h2 class="text-2xl font-bold text-gray-800">In Progress</h2>
-
+                    <h2 class="text-2xl font-bold text-gray-800">In Progress</h2>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="flex overflow-x-auto pb-4 space-x-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     @if(isset($tasksByStatus['in_progress']) && $tasksByStatus['in_progress']->count())
                         @foreach ($tasksByStatus['in_progress'] as $task)
-                            <div class="rounded-2xl p-4 shadow-lg text-white" style="background-color: #5B84AE;">
+                            <div class="rounded-2xl p-4 shadow-lg text-black min-w-[280px] flex-shrink-0 bg-[#5B84AE] cursor-pointer hover:shadow-xl transition-shadow" onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
                                 @if($task->image_url)
                                     <img src="{{ $task->image_url }}" alt="Task Image" class="w-full h-28 object-cover rounded-lg mb-3" />
                                 @endif
                                 <h3 class="font-bold text-lg">{{ $task->task_name }}</h3>
-                                <p class="mt-1 text-sm opacity-90">{{ Str::limit($task->task_description, 80) }}</p>
+                                <div class="flex justify-between mt-2 text-sm">
+                                    <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No task_deadline' }}</span>
+                                    <span class="px-2 py-1 rounded-full text-xs {{
+                                        $task->priority === 'high' ? 'bg-red-400' :
+                                        ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
+                                    }}">
+                                        {{ ucfirst($task->priority) }}
+                                    </span>
+                                </div>
+                                @if($task->category)
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach(explode(',', $task->category) as $category)
+                                            <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">{{ trim($category) }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     @else
-                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48">
+                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48 min-w-[280px]">
                             <p class="text-gray-400">No tasks in progress.</p>
                         </div>
                     @endif
@@ -176,21 +204,35 @@
             <div>
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">Completed</h2>
-
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="flex overflow-x-auto pb-4 space-x-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     @if(isset($tasksByStatus['completed']) && $tasksByStatus['completed']->count())
                         @foreach ($tasksByStatus['completed'] as $task)
-                            <div class="rounded-2xl p-4 shadow-lg text-white" style="background-color: #86BBD8;">
+                            <div class="rounded-2xl p-4 shadow-lg text-black min-w-[280px] flex-shrink-0 bg-[#86BBD8] cursor-pointer hover:shadow-xl transition-shadow" onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
                                 @if($task->image_url)
                                     <img src="{{ $task->image_url }}" alt="Task Image" class="w-full h-28 object-cover rounded-lg mb-3" />
                                 @endif
                                 <h3 class="font-bold text-lg">{{ $task->task_name }}</h3>
-                                <p class="mt-1 text-sm opacity-90">{{ Str::limit($task->task_description, 80) }}</p>
+                                <div class="flex justify-between mt-2 text-sm">
+                                    <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> {{ $task->deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No task_deadline' }}</span>
+                                    <span class="px-2 py-1 rounded-full text-xs {{
+                                        $task->priority === 'high' ? 'bg-red-400' :
+                                        ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
+                                    }}">
+                                        {{ ucfirst($task->priority) }}
+                                    </span>
+                                </div>
+                                @if($task->category)
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach(explode(',', $task->category) as $category)
+                                            <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">{{ trim($tag) }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     @else
-                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48">
+                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48 min-w-[280px]">
                             <p class="text-gray-400">No completed tasks.</p>
                         </div>
                     @endif
@@ -213,28 +255,144 @@
         </div>
     </div>
 
+        <!-- taskmodal aka popup ig click sa task card sa dashboard -->
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-2xl font-bold text-gray-800" id="modalTaskName"></h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <div id="modalTaskImage" class="mb-4">
+                        <!--image if exists -->
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-gray-600 font-medium">Deadline</p>
+                            <p id="modalTaskDeadline" class="text-gray-800"></p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-gray-600 font-medium">Priority</p>
+                            <p id="modalTaskPriority" class="text-gray-800"></p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-gray-600 font-medium">Status</p>
+                            <p id="modalTaskStatus" class="text-gray-800"></p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-gray-600 font-medium">Category</p>
+                            <div id="modalTaskCategory" class="text-gray-800 flex flex-wrap gap-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                        <p class="text-gray-600 font-medium">Description</p>
+                        <p id="modalTaskDescription" class="text-gray-800 whitespace-pre-line"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('sidebar-toggle-button');
-            const iconSidebar = document.getElementById('icon-sidebar'); // Targeting the new icon sidebar
+            const iconSidebar = document.getElementById('icon-sidebar');
             const mainContent = document.getElementById('main-content');
 
-            const mainContentMarginClass = 'md:mr-20'; // Margin for main content when icon sidebar is open (matches w-20)
+            const mainContentMarginClass = 'md:mr-20';
 
             if (toggleButton && iconSidebar && mainContent) {
                 toggleButton.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Prevent event bubbling
-
-                    // Toggle icon sidebar visibility by sliding it from the right
+                    event.stopPropagation();
                     iconSidebar.classList.toggle('translate-x-full');
 
-                    // Toggle main content margin based on sidebar visibility
-                    if (!iconSidebar.classList.contains('translate-x-full')) { // Check if icon sidebar is now open
+                    if (!iconSidebar.classList.contains('translate-x-full')) {
                         mainContent.classList.add(mainContentMarginClass);
-                    } else { // Icon sidebar is closed
+                    } else {
                         mainContent.classList.remove(mainContentMarginClass);
                     }
                 });
+            }
+
+            //fix mobile user
+            const mobileUserName = document.querySelector('.md\\:hidden.mb-6 h1');
+            if (mobileUserName) {
+                mobileUserName.textContent = 'Hello, {{ optional(Auth::user())->name ?? "Guest" }}!';
+            }
+        });
+
+        //show taskmodal
+        function showTaskDetails(task) {
+            //get task name
+            document.getElementById('modalTaskName').textContent = task.task_name || 'No name';
+
+            //format sa deadline
+            const deadline = task.task_deadline ? new Date(task.task_deadline).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            }) : 'No deadline';
+            document.getElementById('modalTaskDeadline').textContent = deadline;
+
+            //priority with style red for high prio green for low
+            const priorityElement = document.getElementById('modalTaskPriority');
+            priorityElement.textContent = task.priority ?
+                task.priority.charAt(0).toUpperCase() + task.priority.slice(1) :
+                'Not set';
+            priorityElement.className = 'inline-block px-2 py-1 rounded-full text-xs ' +
+                (task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-green-100 text-green-800');
+
+            //status
+            document.getElementById('modalTaskStatus').textContent = task.status ?
+                task.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') :
+                'Not set';
+
+            //category
+            const categoryContainer = document.getElementById('modalTaskCategory');
+            categoryContainer.innerHTML = '';
+            if (task.category) {
+                const categoryElement = document.createElement('span');
+                categoryElement.className = 'bg-gray-200 px-2 py-1 rounded-full text-xs';
+                categoryElement.textContent = task.category;
+                categoryContainer.appendChild(categoryElement);
+            }
+
+            //description
+            document.getElementById('modalTaskDescription').textContent =
+                task.task_description || 'No description provided';
+
+            //task image
+            const imageContainer = document.getElementById('modalTaskImage');
+            imageContainer.innerHTML = '';
+            if (task.image_url) {
+                const img = document.createElement('img');
+                img.src = task.image_url;
+                img.alt = 'Task image';
+                img.className = 'w-full h-48 object-cover rounded-lg';
+                imageContainer.appendChild(img);
+            }
+
+            //show ang modal
+            document.getElementById('taskModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+        //x mugana(exit modal back to dashboard)
+        document.getElementById('taskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
             }
         });
     </script>
