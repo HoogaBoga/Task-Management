@@ -46,7 +46,7 @@
             <a href="{{ route('tasks.create') }}" title="Tasks" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
                 <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
             </a>
-            <a href="{{ route('user') }}" title="Users" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
+            <a href="{{ route('user.profile') }}" title="Users" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
                 <img src="{{ asset('images/users.svg') }}" alt="users" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
             </a>
         </div>

@@ -43,7 +43,7 @@
             <a href="{{ route('tasks.create') }}" title="Tasks" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
                 <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
             </a>
-            <a href="{{ route('user') }}" title="Users" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
+            <a href="{{ route('user.profile') }}" title="Users" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
                 <img src="{{ asset('images/users.svg') }}" alt="users" class="w-8 h-8 text-slate-700 group-hover:text-blue-600">
             </a>
         </div>
@@ -127,37 +127,61 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">To Do</h2>
                 </div>
-                <div class="flex overflow-x-auto pb-4 space-x-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    @if(isset($tasksByStatus['todo']) && $tasksByStatus['todo']->count())
-                        @foreach ($tasksByStatus['todo'] as $task)
-                            <div class="rounded-2xl p-4 shadow-lg text-black min-w-[280px] flex-shrink-0 bg-[#336699] cursor-pointer hover:shadow-xl transition-shadow" onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
-                                @if($task->image_url)
-                                    <img src="{{ $task->image_url }}" alt="Task Image" class="w-full h-28 object-cover rounded-lg mb-3" />
-                                @endif
-                                <h3 class="font-bold text-lg">{{ $task->task_name }}</h3>
-                                <div class="flex justify-between mt-2 text-sm">
-                                    <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No task_deadline' }}</span>
-                                    <span class="px-2 py-1 rounded-full text-xs {{
-                                        $task->priority === 'high' ? 'bg-red-400' :
-                                        ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
-                                    }}">
-                                        {{ ucfirst($task->priority) }}
-                                    </span>
-                                </div>
-                                @if($task->category)
-                                    <div class="mt-2 flex flex-wrap gap-1">
-                                        @foreach(explode(',', $task->category) as $category)
-                                            <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">{{ trim($tag) }}</span>
-                                        @endforeach
+                <div class="relative">
+                    <div class="flex space-x-4 pb-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        @if(isset($tasksByStatus['todo']) && $tasksByStatus['todo']->count())
+                            @foreach ($tasksByStatus['todo'] as $task)
+                                <div class="w-72 h-80 flex-shrink-0 rounded-2xl p-4 shadow-lg cursor-pointer transition-all hover:shadow-xl flex flex-col text-white"
+                                    style="background-color: #336699; transition: background-color 0.3s ease;"
+                                    onmouseover="this.style.backgroundColor='#2a5780'"
+                                    onmouseout="this.style.backgroundColor='#336699'"
+                                    onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
+
+                                    <!-- Image (fixed height) -->
+                                    @if($task->image_url)
+                                        <div class="h-36 w-full mb-3 overflow-hidden rounded-lg">
+                                            <img src="{{ $task->image_url }}" alt="Task Image"
+                                                class="h-full w-full object-cover" />
+                                        </div>
+                                    @endif
+
+                                    <!-- Content (flexible space) -->
+                                    <div class="flex-grow flex flex-col">
+                                        <h3 class="font-bold text-lg line-clamp-2">{{ $task->task_name }}</h3>
+
+                                        <div class="mt-auto">
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="flex items-center">
+                                                    <i class="far fa-calendar-alt mr-1"></i>
+                                                    {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No deadline' }}
+                                                </span>
+                                                <span class="px-2 py-1 rounded-full text-xs {{
+                                                    $task->priority === 'high' ? 'bg-red-400' :
+                                                    ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
+                                                }}">
+                                                    {{ ucfirst($task->priority) }}
+                                                </span>
+                                            </div>
+
+                                            @if($task->category)
+                                                <div class="mt-2 flex flex-wrap gap-1">
+                                                    @foreach(explode(',', $task->category) as $category)
+                                                        <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">
+                                                            {{ trim($category) }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
-                                @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="w-72 h-80 flex-shrink-0 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                <p class="text-gray-400">No tasks to do.</p>
                             </div>
-                        @endforeach
-                    @else
-                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48 min-w-[280px]">
-                            <p class="text-gray-400">No tasks to do.</p>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -166,37 +190,59 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">In Progress</h2>
                 </div>
-                <div class="flex overflow-x-auto pb-4 space-x-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    @if(isset($tasksByStatus['in_progress']) && $tasksByStatus['in_progress']->count())
-                        @foreach ($tasksByStatus['in_progress'] as $task)
-                            <div class="rounded-2xl p-4 shadow-lg text-black min-w-[280px] flex-shrink-0 bg-[#5B84AE] cursor-pointer hover:shadow-xl transition-shadow" onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
-                                @if($task->image_url)
-                                    <img src="{{ $task->image_url }}" alt="Task Image" class="w-full h-28 object-cover rounded-lg mb-3" />
-                                @endif
-                                <h3 class="font-bold text-lg">{{ $task->task_name }}</h3>
-                                <div class="flex justify-between mt-2 text-sm">
-                                    <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No task_deadline' }}</span>
-                                    <span class="px-2 py-1 rounded-full text-xs {{
-                                        $task->priority === 'high' ? 'bg-red-400' :
-                                        ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
-                                    }}">
-                                        {{ ucfirst($task->priority) }}
-                                    </span>
-                                </div>
-                                @if($task->category)
-                                    <div class="mt-2 flex flex-wrap gap-1">
-                                        @foreach(explode(',', $task->category) as $category)
-                                            <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">{{ trim($category) }}</span>
-                                        @endforeach
+                <div class="relative">
+                    <div class="flex space-x-4 pb-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        @if(isset($tasksByStatus['in_progress']) && $tasksByStatus['in_progress']->count())
+                            @foreach ($tasksByStatus['in_progress'] as $task)
+                                <div class="w-72 h-80 flex-shrink-0 rounded-2xl p-4 shadow-lg cursor-pointer transition-all hover:shadow-xl flex flex-col text-white"
+                                    style="background-color: #5B84AE; transition: background-color 0.3s ease;"
+                                    onmouseover="this.style.backgroundColor='#4a6d8d'"
+                                    onmouseout="this.style.backgroundColor='#5B84AE'"
+                                    onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
+
+                                    @if($task->image_url)
+                                        <div class="h-36 w-full mb-3 overflow-hidden rounded-lg">
+                                            <img src="{{ $task->image_url }}" alt="Task Image"
+                                                class="h-full w-full object-cover" />
+                                        </div>
+                                    @endif
+
+                                    <div class="flex-grow flex flex-col">
+                                        <h3 class="font-bold text-lg line-clamp-2">{{ $task->task_name }}</h3>
+
+                                        <div class="mt-auto">
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="flex items-center">
+                                                    <i class="far fa-calendar-alt mr-1"></i>
+                                                    {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No deadline' }}
+                                                </span>
+                                                <span class="px-2 py-1 rounded-full text-xs {{
+                                                    $task->priority === 'high' ? 'bg-red-400' :
+                                                    ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
+                                                }}">
+                                                    {{ ucfirst($task->priority) }}
+                                                </span>
+                                            </div>
+
+                                            @if($task->category)
+                                                <div class="mt-2 flex flex-wrap gap-1">
+                                                    @foreach(explode(',', $task->category) as $category)
+                                                        <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">
+                                                            {{ trim($category) }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
-                                @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="w-72 h-80 flex-shrink-0 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                <p class="text-gray-400">No tasks in progress.</p>
                             </div>
-                        @endforeach
-                    @else
-                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48 min-w-[280px]">
-                            <p class="text-gray-400">No tasks in progress.</p>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -205,41 +251,62 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">Completed</h2>
                 </div>
-                <div class="flex overflow-x-auto pb-4 space-x-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    @if(isset($tasksByStatus['completed']) && $tasksByStatus['completed']->count())
-                        @foreach ($tasksByStatus['completed'] as $task)
-                            <div class="rounded-2xl p-4 shadow-lg text-black min-w-[280px] flex-shrink-0 bg-[#86BBD8] cursor-pointer hover:shadow-xl transition-shadow" onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
-                                @if($task->image_url)
-                                    <img src="{{ $task->image_url }}" alt="Task Image" class="w-full h-28 object-cover rounded-lg mb-3" />
-                                @endif
-                                <h3 class="font-bold text-lg">{{ $task->task_name }}</h3>
-                                <div class="flex justify-between mt-2 text-sm">
-                                    <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> {{ $task->deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No task_deadline' }}</span>
-                                    <span class="px-2 py-1 rounded-full text-xs {{
-                                        $task->priority === 'high' ? 'bg-red-400' :
-                                        ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
-                                    }}">
-                                        {{ ucfirst($task->priority) }}
-                                    </span>
-                                </div>
-                                @if($task->category)
-                                    <div class="mt-2 flex flex-wrap gap-1">
-                                        @foreach(explode(',', $task->category) as $category)
-                                            <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">{{ trim($tag) }}</span>
-                                        @endforeach
+                <div class="relative">
+                    <div class="flex space-x-4 pb-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        @if(isset($tasksByStatus['completed']) && $tasksByStatus['completed']->count())
+                            @foreach ($tasksByStatus['completed'] as $task)
+                                <div class="w-72 h-80 flex-shrink-0 rounded-2xl p-4 shadow-lg cursor-pointer transition-all hover:shadow-xl flex flex-col text-white"
+                                    style="background-color: #86BBD8; transition: background-color 0.3s ease;"
+                                    onmouseover="this.style.backgroundColor='#75a7c2'"
+                                    onmouseout="this.style.backgroundColor='#86BBD8'"
+                                    onclick="showTaskDetails({{ json_encode($task, JSON_HEX_APOS) }})">
+
+                                    @if($task->image_url)
+                                        <div class="h-36 w-full mb-3 overflow-hidden rounded-lg">
+                                            <img src="{{ $task->image_url }}" alt="Task Image"
+                                                class="h-full w-full object-cover" />
+                                        </div>
+                                    @endif
+
+                                    <div class="flex-grow flex flex-col">
+                                        <h3 class="font-bold text-lg line-clamp-2">{{ $task->task_name }}</h3>
+
+                                        <div class="mt-auto">
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="flex items-center">
+                                                    <i class="far fa-calendar-alt mr-1"></i>
+                                                    {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No deadline' }}
+                                                </span>
+                                                <span class="px-2 py-1 rounded-full text-xs {{
+                                                    $task->priority === 'high' ? 'bg-red-400' :
+                                                    ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400')
+                                                }}">
+                                                    {{ ucfirst($task->priority) }}
+                                                </span>
+                                            </div>
+
+                                            @if($task->category)
+                                                <div class="mt-2 flex flex-wrap gap-1">
+                                                    @foreach(explode(',', $task->category) as $category)
+                                                        <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">
+                                                            {{ trim($category) }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
-                                @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="w-72 h-80 flex-shrink-0 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                <p class="text-gray-400">No completed tasks.</p>
                             </div>
-                        @endforeach
-                    @else
-                        <div class="rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center h-48 min-w-[280px]">
-                            <p class="text-gray-400">No completed tasks.</p>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-10">
        <div class="flex justify-around items-center p-2">
