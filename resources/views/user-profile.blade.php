@@ -36,9 +36,27 @@
           <a title="Home" href="{{ route('dashboard') }}" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
               <img src="{{ asset('images/home2.svg') }}" alt="home" class="w-8 h-8">
           </a>
-          <a title="Notifications" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
-              <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-8 h-8">
-          </a>
+<div class="relative">
+  <button title="Notifications" id="bell-icon" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
+    <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-8 h-8">
+  </button>
+
+<!-- Notification Popup function -->
+ <div id="notification-popup" class="absolute right-20 -mt-40 w-80 bg-white rounded-xl shadow-lg border border-gray-200 hidden z-40">
+    <div class="p-4 border-b border-gray-300">
+      <h3 class="text-lg font-bold">Notifications</h3>
+    </div>
+    <div class="flex items-center justify-between px-4 py-2">
+      <div class="flex gap-2">
+        <button id="notif-all" class="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700">All</button>
+        <button id="notif-unread" class="text-sm font-medium px-3 py-1 rounded-full hover:bg-gray-200">Unread</button>
+      </div>
+      <button id="mark-read" class="text-sm text-blue-600 underline hover:text-blue-800">Mark all as Read</button>
+    </div>
+    <div class="p-4 text-sm text-gray-500">No new notifications.</div>
+  </div>
+</div>
+
           <a title="Tasks" href="{{ route('tasks.create') }}" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
               <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-8 h-8">
           </a>
@@ -175,6 +193,60 @@
   </div>
 
   <script>
+
+//Notification popup js
+    document.addEventListener('DOMContentLoaded', () => {
+  const bellIcon = document.getElementById('bell-icon');
+  const notificationPopup = document.getElementById('notification-popup');
+
+  if (bellIcon && notificationPopup) {
+    let isVisible = false;
+
+    bellIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isVisible = !isVisible;
+      if (isVisible) {
+        notificationPopup.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          notificationPopup.classList.remove('opacity-0', 'scale-95');
+          notificationPopup.classList.add('opacity-100', 'scale-100');
+        });
+      } else {
+        notificationPopup.classList.remove('opacity-100', 'scale-100');
+        notificationPopup.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+          if (!isVisible) notificationPopup.classList.add('hidden');
+        }, 300);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!notificationPopup.contains(e.target) && !bellIcon.contains(e.target)) {
+        if (isVisible) {
+          isVisible = false;
+          notificationPopup.classList.remove('opacity-100', 'scale-100');
+          notificationPopup.classList.add('opacity-0', 'scale-95');
+          setTimeout(() => {
+            notificationPopup.classList.add('hidden');
+          }, 300);
+        }
+      }
+    });
+  }
+});
+
+
+
+document.getElementById('notif-all').addEventListener('click', () => {
+  document.getElementById('notif-all').classList.add('bg-blue-100', 'text-blue-700');
+  document.getElementById('notif-unread').classList.remove('bg-blue-100', 'text-blue-700');
+});
+
+document.getElementById('notif-unread').addEventListener('click', () => {
+  document.getElementById('notif-unread').classList.add('bg-blue-100', 'text-blue-700');
+  document.getElementById('notif-all').classList.remove('bg-blue-100', 'text-blue-700');
+});
+
     const emailField = document.getElementById('email');
     const toggleEmailBtn = document.getElementById('toggle-email');
     const fields = ['username', 'description'];
@@ -300,6 +372,20 @@
     if(confirmCheckbox) confirmCheckbox.addEventListener('change', validateDeletePopup);
 
     const imagePopup = document.getElementById('image-popup');
+function validateDeletePopup() {
+  const isPasswordFilled = deletePassword.value.trim().length > 0;
+  const isCheckboxChecked = confirmCheckbox.checked;
+  confirmDeleteBtn.disabled = !(isPasswordFilled && isCheckboxChecked);
+  confirmDeleteBtn.classList.toggle('opacity-50', !isPasswordFilled || !isCheckboxChecked);
+  confirmDeleteBtn.classList.toggle('cursor-not-allowed', !isPasswordFilled || !isCheckboxChecked);
+}
+
+// Listen for input changes
+deletePassword.addEventListener('input', validateDeletePopup);
+confirmCheckbox.addEventListener('change', validateDeletePopup);
+
+confirmDeleteBtn.addEventListener('click', () => {
+});
 
     function viewImage() {
       if(imagePopup && profilePic && popupImage) {
