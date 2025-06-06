@@ -45,7 +45,7 @@
     <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-8 h-8">
   </button>
 
-  <!-- Notification Popup -->
+<!-- Notification popup functio -->
  <div id="notification-popup" class="absolute right-20 -mt-40 w-80 bg-white rounded-xl shadow-lg border border-gray-200 hidden z-40">
     <div class="p-4 border-b border-gray-300">
       <h3 class="text-lg font-bold">Notifications</h3>
@@ -57,7 +57,6 @@
       </div>
       <button id="mark-read" class="text-sm text-blue-600 underline hover:text-blue-800">Mark all as Read</button>
     </div>
-    <!-- Add notification items here if needed -->
     <div class="p-4 text-sm text-gray-500">No new notifications.</div>
   </div>
 </div>
@@ -192,7 +191,9 @@
     </div>
 </body>
 <script>
-        document.addEventListener('DOMContentLoaded', () => {
+
+//Notification popup js
+document.addEventListener('DOMContentLoaded', () => {
   const bellIcon = document.getElementById('bell-icon');
   const notificationPopup = document.getElementById('notification-popup');
 
