@@ -166,7 +166,7 @@
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
                                                     @foreach(explode(',', $task->category) as $category)
-                                                        <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">
+                                                        <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
                                                             {{ trim($category) }}
                                                         </span>
                                                     @endforeach
@@ -227,7 +227,7 @@
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
                                                     @foreach(explode(',', $task->category) as $category)
-                                                        <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">
+                                                        <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
                                                             {{ trim($category) }}
                                                         </span>
                                                     @endforeach
@@ -288,7 +288,7 @@
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
                                                     @foreach(explode(',', $task->category) as $category)
-                                                        <span class="bg-gray-400 bg-opacity-20 px-2 py-1 rounded-full text-xs font-semibold">
+                                                        <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
                                                             {{ trim($category) }}
                                                         </span>
                                                     @endforeach
@@ -427,7 +427,8 @@
             categoryContainer.innerHTML = '';
             if (task.category) {
                 const categoryElement = document.createElement('span');
-                categoryElement.className = 'bg-gray-200 px-2 py-1 rounded-full text-xs';
+                categoryElement.className = 'px-2 py-1 rounded-full text-xs text-white';
+                categoryElement.style = "background-color: #ee6c4d;"
                 categoryElement.textContent = task.category;
                 categoryContainer.appendChild(categoryElement);
             }
