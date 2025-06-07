@@ -98,6 +98,43 @@ class AddTaskController extends Controller
     return redirect()->route('dashboard')->with('success', 'Task created successfully!');
 }
 
+public function update(Request $request, Task $task)
+    {
+        // Authorization: Ensure the user owns the task
+        if ($task->user_id !== Auth::user()->supabase_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Validation
+        $validated = $request->validate([
+            'task_name' => 'required|string|max:255',
+            'task_description' => 'nullable|string',
+            'task_deadline' => 'nullable|date',
+            'priority' => 'required|in:low,high',
+            'status' => 'required|in:todo,in_progress,completed',
+            'category' => 'nullable|string|max:255',
+        ]);
+
+        // Update the task with validated data
+        $task->update($validated);
+
+        return redirect()->route('dashboard')->with('success', 'Task updated successfully!');
+    }
+
+    /**
+     * Remove the specified task from storage.
+     */
+    public function destroy(Task $task)
+    {
+        // Authorization: Ensure the user owns the task
+        if ($task->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $task->delete();
+
+        return redirect()->route('dashboard')->with('success', 'Task deleted successfully.');
+    }
 
 }
 

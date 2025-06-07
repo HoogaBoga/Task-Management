@@ -78,8 +78,14 @@
         <div class="md:hidden mb-6">
              <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center space-x-4">
-                    <img src="https://i.imgur.com/OzA0f2a.jpeg" alt="User" class="w-12 h-12 rounded-full">
-                    <div>
+                @if (Auth::user()->avatar_url)
+                                {{-- If user has an uploaded avatar, use it --}}
+                                <img src="{{ Auth::user()->avatar_url }}" alt="User Avatar" class="w-12 h-12 rounded-full object-cover">
+                            @else
+                                {{-- Otherwise, generate a UI-Avatars URL --}}
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=random" alt="User Initials" class="w-12 h-12 rounded-full object-cover">
+                            @endif
+                                <div>
                         <h1 class="text-xl font-bold text-gray-800">Hello, $user!</h1>
                         <p class="text-sm text-gray-500">Welcome Back!</p>
                     </div>
@@ -108,8 +114,14 @@
 
         <div class="hidden md:flex flex-wrap justify-between items-center gap-4 mb-10">
              <div class="flex items-center space-x-4">
-                <img src="https://i.imgur.com/OzA0f2a.jpeg" alt="User" class="w-14 h-14 rounded-full">
-                <div>
+            @if (Auth::user()->avatar_url)
+                        {{-- If user has an uploaded avatar, use it --}}
+                        <img src="{{ Auth::user()->avatar_url }}" alt="User Avatar" class="w-14 h-14 rounded-full object-cover">
+                    @else
+                        {{-- Otherwise, generate a UI-Avatars URL --}}
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=random" alt="User Initials" class="w-14 h-14 rounded-full object-cover">
+                    @endif
+                    {{-- END: AVATAR LOGIC --}}                <div>
                     <h1 class="text-2xl font-bold text-gray-800">Hello, {{ optional(Auth::user())->name ?? 'Guest'}}!</h1>
                     <p class="text-md text-gray-500">Welcome Back!</p>
                 </div>
@@ -342,49 +354,87 @@
     </div>
 
         <!-- taskmodal aka popup ig click sa task card sa dashboard -->
-    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+<div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+
+        {{-- This form will wrap the entire modal content --}}
+        <form id="edit-task-form" method="POST"
+      data-update-url-template="{{ route('tasks.update', ['task' => 'TASK_ID_PLACEHOLDER']) }}">
+            @csrf
+            @method('PATCH') {{-- Important for telling Laravel we are updating --}}
+
             <div class="p-6">
-                <div class="flex justify-between items-start">
-                    <h3 class="text-2xl font-bold text-gray-800" id="modalTaskName"></h3>
-                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                <div class="flex justify-between items-start mb-4">
+                    {{-- The Task Name will now be an input field --}}
+                    <input type="text" id="modalTaskNameInput" name="task_name" disabled
+                           class="text-2xl font-bold text-gray-800 bg-transparent border-0 p-0 focus:ring-0 w-full">
+
+                    <button type="button" onclick="closeModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
 
-                <div class="mt-4">
-                    <div id="modalTaskImage" class="mb-4">
-                        <!--image if exists -->
+                <div id="modalTaskImage" class="mb-4">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-gray-600 font-medium">Deadline</p>
-                            <p id="modalTaskDeadline" class="text-gray-800"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-gray-600 font-medium">Priority</p>
-                            <p id="modalTaskPriority" class="text-gray-800"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-gray-600 font-medium">Status</p>
-                            <p id="modalTaskStatus" class="text-gray-800"></p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-gray-600 font-medium">Category</p>
-                            <div id="modalTaskCategory" class="text-gray-800 flex flex-wrap gap-1"></div>
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-gray-600 font-medium">Deadline</label>
+                        <input type="date" id="modalTaskDeadlineInput" name="task_deadline" disabled
+                               class="w-full bg-gray-50 p-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-blue-500 transition">
                     </div>
-
-                    <div class="bg-gray-50 p-3 rounded-lg mb-4">
-                        <p class="text-gray-600 font-medium">Description</p>
-                        <p id="modalTaskDescription" class="text-gray-800 whitespace-pre-line"></p>
+                    <div>
+                        <label class="text-gray-600 font-medium">Priority</label>
+                        <select id="modalTaskPriorityInput" name="priority" disabled
+                                class="w-full bg-gray-50 p-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-blue-500 transition">
+                            <option value="low">Low</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-gray-600 font-medium">Status</label>
+                        <select id="modalTaskStatusInput" name="status" disabled
+                                class="w-full bg-gray-50 p-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-blue-500 transition">
+                            <option value="todo">To Do</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                     {{-- THIS IS THE NEW CODE --}}
+                    <div>
+                        <label class="text-gray-600 font-medium">Category</label>
+                        <select id="modalTaskCategoryInput" name="category" disabled
+                                class="w-full bg-gray-50 p-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-blue-500 transition">
+                            <option value="">-- Select a Category --</option>
+                            {{-- Loop through the categories passed from the controller --}}
+                            @if(isset($categories))
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category }}">{{ $category }}</option>
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
+                <div class="mb-4">
+                    <label class="text-gray-600 font-medium">Description</label>
+                    <textarea id="modalTaskDescriptionInput" name="task_description" rows="4" disabled
+                              class="w-full bg-gray-50 p-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-blue-500 transition resize-none"></textarea>
+                </div>
+
+                <div id="modal-actions" class="flex justify-between items-center">
+                    <div>
+                        <button type="button" id="edit-task-btn" onclick="toggleEditMode(true)" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">Edit Task</button>
+                        <button type="submit" id="save-task-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 hidden">Save Changes</button>
+                        <button type="button" id="cancel-edit-btn" onclick="toggleEditMode(false)" class="text-gray-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 hidden">Cancel</button>
+                    </div>
+                    {{-- A separate form for deleting the task --}}
+                    <button type="button" onclick="deleteTask()" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700">Delete Task</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
     <script>
 
 //Notification popup js
@@ -478,48 +528,30 @@ document.getElementById('notif-unread').addEventListener('click', () => {
 
         //show taskmodal
         function showTaskDetails(task) {
-            //get task name
-            document.getElementById('modalTaskName').textContent = task.task_name || 'No name';
+            // Set the form's action to the correct update route
+            const form = document.getElementById('edit-task-form');
+            // Get the URL template we stored on the form
+            const urlTemplate = form.dataset.updateUrlTemplate;
 
-            //format sa deadline
-            const deadline = task.task_deadline ? new Date(task.task_deadline).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            }) : 'No deadline';
-            document.getElementById('modalTaskDeadline').textContent = deadline;
+            // Replace the placeholder with the actual task ID
+            form.action = urlTemplate.replace('TASK_ID_PLACEHOLDER', task.id);
+            // Populate the form fields with the task data
+            document.getElementById('modalTaskNameInput').value = task.task_name || '';
+            document.getElementById('modalTaskDescriptionInput').value = task.task_description || '';
+            document.getElementById('modalTaskCategoryInput').value = task.category || '';
 
-            //priority with style red for high prio green for low
-            const priorityElement = document.getElementById('modalTaskPriority');
-            priorityElement.textContent = task.priority ?
-                task.priority.charAt(0).toUpperCase() + task.priority.slice(1) :
-                'Not set';
-            priorityElement.className = 'inline-block px-2 py-1 rounded-full text-xs ' +
-                (task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-green-100 text-green-800');
-
-            //status
-            document.getElementById('modalTaskStatus').textContent = task.status ?
-                task.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') :
-                'Not set';
-
-            //category
-            const categoryContainer = document.getElementById('modalTaskCategory');
-            categoryContainer.innerHTML = '';
-            if (task.category) {
-                const categoryElement = document.createElement('span');
-                categoryElement.className = 'px-2 py-1 rounded-full text-xs text-white';
-                categoryElement.style = "background-color: #ee6c4d;"
-                categoryElement.textContent = task.category;
-                categoryContainer.appendChild(categoryElement);
+            // For the deadline, we need to format it to YYYY-MM-DD
+            if (task.task_deadline) {
+                document.getElementById('modalTaskDeadlineInput').value = new Date(task.task_deadline).toISOString().split('T')[0];
+            } else {
+                document.getElementById('modalTaskDeadlineInput').value = '';
             }
 
-            //description
-            document.getElementById('modalTaskDescription').textContent =
-                task.task_description || 'No description provided';
+            // Set the selected option for dropdowns
+            document.getElementById('modalTaskPriorityInput').value = task.priority || 'low';
+            document.getElementById('modalTaskStatusInput').value = task.status || 'todo';
 
-            //task image
+            // Populate the image
             const imageContainer = document.getElementById('modalTaskImage');
             imageContainer.innerHTML = '';
             if (task.image_url) {
@@ -530,14 +562,17 @@ document.getElementById('notif-unread').addEventListener('click', () => {
                 imageContainer.appendChild(img);
             }
 
-            //show ang modal
+            // Show the modal
             document.getElementById('taskModal').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
         }
 
+
         function closeModal() {
             document.getElementById('taskModal').classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
+            toggleEditMode(false); // Ensure edit mode is cancelled when closing
+
         }
         //x mugana(exit modal back to dashboard)
         document.getElementById('taskModal').addEventListener('click', function(e) {
@@ -545,6 +580,51 @@ document.getElementById('notif-unread').addEventListener('click', () => {
                 closeModal();
             }
         });
+
+        function toggleEditMode(isEditing) {
+            const form = document.getElementById('edit-task-form');
+            // Get all input, select, and textarea elements within the form
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(input => {
+                input.disabled = !isEditing;
+                // Add/remove styling for visual feedback
+                if (isEditing) {
+                    input.classList.add('border-gray-300');
+                    input.classList.remove('bg-transparent', 'border-0', 'p-0');
+                } else {
+                    input.classList.remove('border-gray-300');
+                    // Special handling for the title to make it look like plain text
+                    if(input.id === 'modalTaskNameInput') {
+                        input.classList.add('bg-transparent', 'border-0', 'p-0');
+                    }
+                }
+            });
+
+            // Toggle the visibility of the action buttons
+            document.getElementById('edit-task-btn').classList.toggle('hidden', isEditing);
+            document.getElementById('save-task-btn').classList.toggle('hidden', !isEditing);
+            document.getElementById('cancel-edit-btn').classList.toggle('hidden', !isEditing);
+        }
+
+        // ADD this function for the delete button
+        function deleteTask() {
+            if (confirm('Are you sure you want to delete this task? This cannot be undone.')) {
+                // Create a new form to submit a DELETE request
+                const form = document.getElementById('edit-task-form');
+                const deleteTaskForm = document.createElement('form');
+                deleteTaskForm.method = 'POST';
+                deleteTaskForm.action = form.action; // Uses the same action URL /tasks/{id}
+
+                const csrfToken = form.querySelector('input[name="_token"]').value;
+                const methodInput = `<input type="hidden" name="_method" value="DELETE">`;
+                const csrfInput = `<input type="hidden" name="_token" value="${csrfToken}">`;
+
+                deleteTaskForm.innerHTML = methodInput + csrfInput;
+                document.body.appendChild(deleteTaskForm);
+                deleteTaskForm.submit();
+            }
+        }
     </script>
 </body>
 </html>
