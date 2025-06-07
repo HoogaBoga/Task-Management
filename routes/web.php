@@ -34,6 +34,10 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/tasks/create', [AddTaskController::class, 'create'])->name('tasks.create');
     Route::post('/tasks', [AddTaskController::class, 'store'])->name('tasks.store');
 
+    Route::patch('/tasks/{task}', [AddTaskController::class, 'update'])->name('tasks.update');
+    Route::delete('/tasks/{task}', [AddTaskController::class, 'destroy'])->name('tasks.destroy');
+
+
     // USER PROFILE ROUTES ARE NOW HERE (REPLACING THE OLD /user ROUTE)
     // =================================================================
     // This route displays the user profile page.

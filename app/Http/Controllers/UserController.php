@@ -81,46 +81,48 @@ class UserController extends Controller
         $fileName = 'public/' . $user->uuid . '.' . $file->getClientOriginalExtension();
 
         try {
-            // 4. Perform the HTTP request to upload the file
-            $uploadResponse = Http::withHeaders([
-                'apikey' => $supabaseKey,
-                'Authorization' => 'Bearer ' . $supabaseKey,
-            ])->attach(
-                'file', file_get_contents($file), $fileName, [
-                    'Content-Type' => $file->getMimeType(),
-                ]
-            )->post("$supabaseUrl/storage/v1/object/$bucket/$fileName", [
-                'cacheControl' => '3600',
-                'upsert' => 'true',
-            ]);
+    // 4. Prepare file content and MIME type
+    $fileContents = file_get_contents($file->getRealPath());
+    $mimeType = $file->getMimeType();
 
-            if ($uploadResponse->failed()) {
-                Log::error('Failed to upload avatar to Supabase.', [
-                    'status' => $uploadResponse->status(),
-                    'response' => $uploadResponse->body(),
-                ]);
-                return back()->with('error', 'Failed to upload avatar.');
-            }
+    // 5. Perform the HTTP request to upload the file
+    $uploadResponse = Http::withHeaders([
+        'apikey' => $supabaseKey,
+        'Authorization' => 'Bearer ' . $supabaseKey,
+        'cache-control' => 'max-age=3600',
+        'x-upsert' => 'true',
+    ])
+    ->withBody($fileContents, $mimeType) // <-- THIS IS THE CORRECT METHOD
+    ->post("$supabaseUrl/storage/v1/object/$bucket/$fileName");
 
-            // 5. Construct the public URL
-            $imageUrl = "$supabaseUrl/storage/v1/object/public/$bucket/$fileName";
-            Log::info('Avatar uploaded successfully for user ID ' . $user->id . '. Public URL: ' . $imageUrl);
+    if ($uploadResponse->failed()) {
+        Log::error('Failed to upload avatar to Supabase.', [
+            'status' => $uploadResponse->status(),
+            'response' => $uploadResponse->body(),
+        ]);
+        return back()->with('error', 'Failed to upload avatar.');
+    }
 
-            // 6. Save the new avatar URL to your local User model
-            // THE FIX: Find the actual Eloquent model from your database first
-            $userToUpdate = User::find($user->id);
-            if (!$userToUpdate) {
-                return back()->with('error', 'User record not found in the database.');
-            }
+    // 6. Construct the public URL
+    $imageUrl = "$supabaseUrl/storage/v1/object/public/$bucket/$fileName";
+    Log::info('Avatar uploaded successfully for user ID ' . $user->id . '. Public URL: ' . $imageUrl);
 
-            $userToUpdate->avatar_url = $imageUrl . '?t=' . time(); // Add a timestamp to break browser cache
-            $userToUpdate->save(); // Now this will work correctly
+    // 7. Save the new avatar URL to your local User model
+    $userToUpdate = User::find($user->id);
+    if (!$userToUpdate) {
+        return back()->with('error', 'User record not found in the database.');
+    }
 
-        } catch (\Exception $e) {
-            Log::error('Exception while uploading avatar', ['message' => $e->getMessage()]);
-            return back()->with('error', 'Error uploading avatar.');
-        }
+    $userToUpdate->avatar_url = $imageUrl . '?t=' . time(); // Add a timestamp to break browser cache
+    $userToUpdate->save();
 
+} catch (\Exception $e) {
+    Log::error('Exception while uploading avatar', [
+        'message' => $e->getMessage(),
+        'trace' => $e->getTraceAsString() // Adding stack trace for more details if it fails again
+    ]);
+    return back()->with('error', 'Error uploading avatar.');
+}
         // 7. Redirect back with a success message
         return redirect()->route('user.profile')->with('success', 'Profile picture updated successfully!');
     }

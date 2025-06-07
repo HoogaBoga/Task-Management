@@ -106,8 +106,14 @@
               @csrf
               <div class="flex flex-col md:flex-row items-center gap-6 mb-8 pb-8 border-b border-gray-300">
                 <div class="avatar w-24 h-24 rounded-full bg-gray-400 overflow-hidden relative group cursor-pointer flex-shrink-0">
-                  <img id="profile-pic" src="{{ Auth::user()->avatar_url ?? asset('images/default-avatar.png') }}" alt="Profile Picture" class="w-full h-full object-cover" />
-                  <div class="absolute inset-0 bg-black bg-opacity-50 text-white text-center flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" onclick="viewImage()">
+                    @if (Auth::user()->avatar_url)
+                        {{-- If user has an uploaded avatar, use it --}}
+                        <img id="profile-pic" src="{{ Auth::user()->avatar_url }}" alt="Profile Picture" class="w-full h-full object-cover">
+                    @else
+                        {{-- Otherwise, generate a UI-Avatars URL --}}
+                        <img id="profile-pic" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=128&background=5B84AE&color=FFFFFF&bold=true" alt="User Initials" class="w-full h-full object-cover">
+                    @endif
+                    <div class="absolute inset-0 bg-black bg-opacity-50 text-white text-center flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" onclick="viewImage()">
                     <span class="text-sm font-bold">View Image</span>
                   </div>
                 </div>
@@ -179,7 +185,13 @@
   <div id="image-popup" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center">
     <div class="relative bg-white rounded-lg shadow-lg p-4 max-w-[90%] max-h-[90%] flex items-center justify-center">
       <button onclick="closeImagePopup()" class="absolute top-2 right-2 text-white bg-gray-700 hover:bg-gray-900 rounded-full w-8 h-8 flex items-center justify-center">&times;</button>
-      <img id="popup-image" src="{{ asset('images/default-avatar.png') }}" alt="Full Profile Image" class="max-w-full max-h-[80vh] rounded" />
+        @if (Auth::user()->avatar_url)
+            {{-- If user has an uploaded avatar, use it --}}
+            <img id="popup-image" src="{{ Auth::user()->avatar_url }}" alt="Full Profile Image" class="max-w-full max-h-[80vh] rounded" />
+        @else
+            {{-- Otherwise, generate a UI-Avatars URL --}}
+            <img id="popup-image" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=512&background=5B84AE&color=FFFFFF&bold=true" alt="User Initials" class="max-w-full max-h-[80vh] rounded" />
+        @endif
     </div>
   </div>
 
