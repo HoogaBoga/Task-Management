@@ -50,6 +50,6 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/user/avatar/update', [UserController::class, 'updateAvatar'])
         ->name('user.avatar.update');
     // =================================================================
-
+    Route::post('/user/delete', [UserController::class, 'deleteAccount'])->name('user.account.delete');
     // Add other routes here that are meant to be protected by Laravel's standard auth
 });
