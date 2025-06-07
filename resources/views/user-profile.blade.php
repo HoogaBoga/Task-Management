@@ -36,26 +36,25 @@
           <a title="Home" href="{{ route('dashboard') }}" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
               <img src="{{ asset('images/home2.svg') }}" alt="home" class="w-8 h-8">
           </a>
-<div class="relative">
-  <button title="Notifications" id="bell-icon" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
-    <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-8 h-8">
-  </button>
+          <div class="relative">
+            <button title="Notifications" id="bell-icon" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
+              <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-8 h-8">
+            </button>
 
-<!-- Notification Popup function -->
- <div id="notification-popup" class="absolute right-20 -mt-40 w-80 bg-white rounded-xl shadow-lg border border-gray-200 hidden z-40">
-    <div class="p-4 border-b border-gray-300">
-      <h3 class="text-lg font-bold">Notifications</h3>
-    </div>
-    <div class="flex items-center justify-between px-4 py-2">
-      <div class="flex gap-2">
-        <button id="notif-all" class="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700">All</button>
-        <button id="notif-unread" class="text-sm font-medium px-3 py-1 rounded-full hover:bg-gray-200">Unread</button>
-      </div>
-      <button id="mark-read" class="text-sm text-blue-600 underline hover:text-blue-800">Mark all as Read</button>
-    </div>
-    <div class="p-4 text-sm text-gray-500">No new notifications.</div>
-  </div>
-</div>
+          <div id="notification-popup" class="absolute right-20 -mt-40 w-80 bg-white rounded-xl shadow-lg border border-gray-200 hidden z-40">
+              <div class="p-4 border-b border-gray-300">
+                <h3 class="text-lg font-bold">Notifications</h3>
+              </div>
+              <div class="flex items-center justify-between px-4 py-2">
+                <div class="flex gap-2">
+                  <button id="notif-all" class="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700">All</button>
+                  <button id="notif-unread" class="text-sm font-medium px-3 py-1 rounded-full hover:bg-gray-200">Unread</button>
+                </div>
+                <button id="mark-read" class="text-sm text-blue-600 underline hover:text-blue-800">Mark all as Read</button>
+              </div>
+              <div class="p-4 text-sm text-gray-500">No new notifications.</div>
+            </div>
+          </div>
 
           <a title="Tasks" href="{{ route('tasks.create') }}" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
               <img src="{{ asset('images/calendarclock.svg') }}" alt="task" class="w-8 h-8">
@@ -123,47 +122,55 @@
               </div>
             </form>
 
-            <form action="{{ route('user.profile.update') }}" method="POST">
-              @csrf
-              <div class="grid md:grid-cols-2 gap-x-10 gap-y-8">
+            <div class="grid md:grid-cols-2 gap-x-10 gap-y-8">
+                <form action="{{ route('user.profile.update') }}" method="POST" id="profile-update-form">
+                    @csrf
+                    <div class="flex-1">
+                        <h2 class="text-lg font-bold mb-4">Account Details</h2>
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block mb-1 font-bold" for="username">Username:</label>
+                                <input type="text" id="username" name="username" value="{{ old('username', Auth::user()->name) }}" readonly class="w-full p-2.5 rounded-md border border-gray-300 text-sm bg-gray-200 cursor-default" />
+                            </div>
+                            <div>
+                                <label class="block mb-1 font-bold" for="email">Email:</label>
+                                <div class="relative flex items-center">
+                                    <input type="text" id="email" value="{{ Auth::user()->email }}" readonly class="w-full p-2.5 rounded-md border border-gray-300 text-sm bg-gray-200 cursor-default pr-16" />
+                                    <button type="button" id="toggle-email" class="absolute right-3 text-sm text-blue-600 underline font-semibold">Show</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block mb-1 font-bold" for="description">Description:</label>
+                                <textarea id="description" name="description" rows="4" readonly class="w-full p-2.5 rounded-md border border-gray-300 text-sm bg-gray-200 cursor-default resize-none">{{ old('description', Auth::user()->description) }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
                 <div class="flex-1">
-                  <h2 class="text-lg font-bold mb-4">Account Details</h2>
-                  <div class="space-y-5">
-                    <div>
-                      <label class="block mb-1 font-bold" for="username">Username:</label>
-                      <input type="text" id="username" name="username" value="{{ old('username', Auth::user()->name) }}" readonly class="w-full p-2.5 rounded-md border border-gray-300 text-sm bg-gray-200 cursor-default" />
-                    </div>
-                    <div>
-                      <label class="block mb-1 font-bold" for="email">Email:</label>
-                      <div class="relative flex items-center">
-                        <input type="text" id="email" value="{{ Auth::user()->email }}" readonly class="w-full p-2.5 rounded-md border border-gray-300 text-sm bg-gray-200 cursor-default pr-16" />
-                        <button type="button" id="toggle-email" class="absolute right-3 text-sm text-blue-600 underline font-semibold">Show</button>
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block mb-1 font-bold" for="description">Description:</label>
-                      <textarea id="description" name="description" rows="4" readonly class="w-full p-2.5 rounded-md border border-gray-300 text-sm bg-gray-200 cursor-default resize-none">{{ old('description', Auth::user()->description) }}</textarea>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex-1">
-                  <h2 class="text-lg font-bold mb-4">Control</h2>
-                  <div class="flex flex-col items-start gap-3">
-<a href="{{ route('change-password') }}" class="inline-block text-center border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-[#F16D45] text-white font-bold hover:bg-opacity-90">
-        Change Password
-    </a>                    <button type="button" class="border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-red-600 text-white font-bold hover:bg-opacity-90" onclick="handleDelete()">Delete Account</button>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-[#C41E3A] text-white font-bold hover:bg-opacity-90">
-                            Logout
+                    <h2 class="text-lg font-bold mb-4">Control</h2>
+                    <div class="flex flex-col items-start gap-3">
+                        <a href="{{ route('change-password') }}" class="inline-block text-center border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-[#F16D45] text-white font-bold hover:bg-opacity-90">
+                            Change Password
+                        </a>
+                        <button type="button" class="border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-red-600 text-white font-bold hover:bg-opacity-90" onclick="handleDelete()">
+                            Delete Account
                         </button>
-                    </form>
-                    <button type="submit" class="save-button border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-[#5B84AE] text-white hidden" id="save-button">Save Details</button>
-                  </div>
+
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-[#C41E3A] text-white font-bold hover:bg-opacity-90">
+                                Logout
+                            </button>
+                        </form>
+
+                        <button type="submit" form="profile-update-form" class="save-button border-0 px-5 py-2.5 rounded-lg text-sm cursor-pointer bg-[#5B84AE] text-white hidden" id="save-button">
+                            Save Details
+                        </button>
+                    </div>
                 </div>
-              </div>
-            </form>
-          </div>
+            </div>
+            </div>
         </section>
       </main>
   </div>
@@ -176,76 +183,87 @@
     </div>
   </div>
 
-  <div id="delete-popup" class="fixed inset-0 bg-black bg-opacity-70 hidden z-60 flex items-center justify-center">
-    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full relative">
-      <button onclick="closeDeletePopup()" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900 font-bold text-2xl">&times;</button>
-      <h3 class="text-lg font-bold mb-4">Confirm Account Deletion</h3>
-      <p class="mb-4 text-sm">Please enter your password and confirm before deleting your account. This action is irreversible.</p>
-      <input id="delete-password" type="password" placeholder="Password" class="w-full p-2 border border-gray-300 rounded mb-3" />
-      <label class="inline-flex items-center mb-4">
-        <input type="checkbox" id="confirm-checkbox" class="mr-2" />
-        <span>I understand that deleting my account is irreversible</span>
-      </label>
-      <button id="confirm-delete-btn" disabled class="w-full bg-red-600 text-white py-2 rounded font-bold opacity-50 cursor-not-allowed">
-        Delete Account (10)
-      </button>
+
+    <div id="delete-popup" class="fixed inset-0 bg-black bg-opacity-70 hidden z-60 flex items-center justify-center">
+      <form id="delete-account-form" action="{{ route('user.account.delete') }}" method="POST" class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full relative">
+        @csrf
+        <button type="button" onclick="closeDeletePopup()" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900 font-bold text-2xl">&times;</button>
+        <h3 class="text-lg font-bold mb-4">Confirm Account Deletion</h3>
+
+        <div id="password-field-container">
+            <p class="mb-4 text-sm">Please enter your password to confirm. This action is irreversible.</p>
+            <input id="delete-password" name="password" type="password" placeholder="Password" class="w-full p-2 border border-gray-300 rounded mb-3" />
+        </div>
+
+        <div id="confirmation-field-container" class="hidden">
+            <p class="mb-4 text-sm">To confirm, please type your email address <strong class="text-black">{{ Auth::user()->email }}</strong> in the box below.</p>
+            <input id="delete-confirmation" name="confirmation" type="text" placeholder="Type your email to confirm" class="w-full p-2 border border-gray-300 rounded mb-3" />
+        </div>
+
+        <label class="inline-flex items-center mb-4">
+          <input type="checkbox" id="confirm-checkbox" class="mr-2" />
+          <span>I understand that deleting my account is irreversible</span>
+        </label>
+
+        <button type="submit" id="confirm-delete-btn" disabled class="w-full bg-red-600 text-white py-2 rounded font-bold opacity-50 cursor-not-allowed">
+          Delete Account (10)
+        </button>
+      </form>
     </div>
-  </div>
+    <script>
+    // NEW: Pass a flag from Laravel to know if the user has a password set.
+    const userHasPassword = @json(!empty(Auth::user()->password));
 
-  <script>
-
-//Notification popup js
+    //Notification popup js
     document.addEventListener('DOMContentLoaded', () => {
-  const bellIcon = document.getElementById('bell-icon');
-  const notificationPopup = document.getElementById('notification-popup');
+      const bellIcon = document.getElementById('bell-icon');
+      const notificationPopup = document.getElementById('notification-popup');
 
-  if (bellIcon && notificationPopup) {
-    let isVisible = false;
+      if (bellIcon && notificationPopup) {
+        let isVisible = false;
 
-    bellIcon.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isVisible = !isVisible;
-      if (isVisible) {
-        notificationPopup.classList.remove('hidden');
-        requestAnimationFrame(() => {
-          notificationPopup.classList.remove('opacity-0', 'scale-95');
-          notificationPopup.classList.add('opacity-100', 'scale-100');
+        bellIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          isVisible = !isVisible;
+          if (isVisible) {
+            notificationPopup.classList.remove('hidden');
+            requestAnimationFrame(() => {
+              notificationPopup.classList.remove('opacity-0', 'scale-95');
+              notificationPopup.classList.add('opacity-100', 'scale-100');
+            });
+          } else {
+            notificationPopup.classList.remove('opacity-100', 'scale-100');
+            notificationPopup.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+              if (!isVisible) notificationPopup.classList.add('hidden');
+            }, 300);
+          }
         });
-      } else {
-        notificationPopup.classList.remove('opacity-100', 'scale-100');
-        notificationPopup.classList.add('opacity-0', 'scale-95');
-        setTimeout(() => {
-          if (!isVisible) notificationPopup.classList.add('hidden');
-        }, 300);
+
+        document.addEventListener('click', (e) => {
+          if (!notificationPopup.contains(e.target) && !bellIcon.contains(e.target)) {
+            if (isVisible) {
+              isVisible = false;
+              notificationPopup.classList.remove('opacity-100', 'scale-100');
+              notificationPopup.classList.add('opacity-0', 'scale-95');
+              setTimeout(() => {
+                notificationPopup.classList.add('hidden');
+              }, 300);
+            }
+          }
+        });
       }
     });
 
-    document.addEventListener('click', (e) => {
-      if (!notificationPopup.contains(e.target) && !bellIcon.contains(e.target)) {
-        if (isVisible) {
-          isVisible = false;
-          notificationPopup.classList.remove('opacity-100', 'scale-100');
-          notificationPopup.classList.add('opacity-0', 'scale-95');
-          setTimeout(() => {
-            notificationPopup.classList.add('hidden');
-          }, 300);
-        }
-      }
+    document.getElementById('notif-all').addEventListener('click', () => {
+      document.getElementById('notif-all').classList.add('bg-blue-100', 'text-blue-700');
+      document.getElementById('notif-unread').classList.remove('bg-blue-100', 'text-blue-700');
     });
-  }
-});
 
-
-
-document.getElementById('notif-all').addEventListener('click', () => {
-  document.getElementById('notif-all').classList.add('bg-blue-100', 'text-blue-700');
-  document.getElementById('notif-unread').classList.remove('bg-blue-100', 'text-blue-700');
-});
-
-document.getElementById('notif-unread').addEventListener('click', () => {
-  document.getElementById('notif-unread').classList.add('bg-blue-100', 'text-blue-700');
-  document.getElementById('notif-all').classList.remove('bg-blue-100', 'text-blue-700');
-});
+    document.getElementById('notif-unread').addEventListener('click', () => {
+      document.getElementById('notif-unread').classList.add('bg-blue-100', 'text-blue-700');
+      document.getElementById('notif-all').classList.remove('bg-blue-100', 'text-blue-700');
+    });
 
     const emailField = document.getElementById('email');
     const toggleEmailBtn = document.getElementById('toggle-email');
@@ -263,10 +281,6 @@ document.getElementById('notif-unread').addEventListener('click', () => {
       document.getElementById('save-button').classList.remove('hidden');
       document.getElementById('edit-btn').classList.add('hidden');
       document.getElementById('edit-note').classList.remove('hidden');
-    }
-
-    function saveDetails() {
-      document.getElementById('profile-details-form').submit();
     }
 
     function maskEmail(email) {
@@ -307,23 +321,38 @@ document.getElementById('notif-unread').addEventListener('click', () => {
         });
     }
 
-
+    // --- UPDATED DELETE LOGIC ---
     const deletePopup = document.getElementById('delete-popup');
     const deletePassword = document.getElementById('delete-password');
     const confirmCheckbox = document.getElementById('confirm-checkbox');
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const passwordContainer = document.getElementById('password-field-container');
+    const confirmationContainer = document.getElementById('confirmation-field-container');
+    const confirmationInput = document.getElementById('delete-confirmation');
+
     let countdownInterval;
     let countdown = 10;
 
     function handleDelete() {
-      if(!deletePopup || !deletePassword || !confirmCheckbox || !confirmDeleteBtn) return;
+      if(!deletePopup) return;
 
+      // Reset all fields
       deletePassword.value = '';
+      confirmationInput.value = '';
       confirmCheckbox.checked = false;
       countdown = 10;
       confirmDeleteBtn.textContent = `Delete Account (${countdown})`;
       confirmDeleteBtn.disabled = true;
       confirmDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      // NEW: Show the correct input field based on the user type
+      if (userHasPassword) {
+          passwordContainer.classList.remove('hidden');
+          confirmationContainer.classList.add('hidden');
+      } else {
+          passwordContainer.classList.add('hidden');
+          confirmationContainer.classList.remove('hidden');
+      }
 
       deletePopup.classList.remove('hidden');
 
@@ -335,11 +364,11 @@ document.getElementById('notif-unread').addEventListener('click', () => {
             confirmDeleteBtn.textContent = `Delete Account (${countdown})`;
         } else {
             confirmDeleteBtn.textContent = 'Delete Account';
-            validateDeletePopup();
+            validateDeleteButtonState();
             clearInterval(countdownInterval);
         }
       }, 1000);
-      validateDeletePopup();
+      validateDeleteButtonState();
     }
 
     function closeDeletePopup() {
@@ -348,45 +377,36 @@ document.getElementById('notif-unread').addEventListener('click', () => {
       clearInterval(countdownInterval);
     }
 
-    function validateDeletePopup() {
-      if(!deletePassword || !confirmCheckbox || !confirmDeleteBtn) return;
-      const isPasswordFilled = deletePassword.value.trim().length > 0;
-      const isConfirmed = confirmCheckbox.checked;
+    function validateDeleteButtonState() {
+        if(!confirmCheckbox || !confirmDeleteBtn) return;
 
-      if (isPasswordFilled && isConfirmed && countdown <= 0) {
-        confirmDeleteBtn.disabled = false;
-        confirmDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      } else {
-        confirmDeleteBtn.disabled = true;
-        confirmDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        if(countdown > 0 && confirmDeleteBtn.textContent.startsWith("Delete Account (")) {
-        } else if (countdown > 0) {
-             confirmDeleteBtn.textContent = `Delete Account (${countdown})`;
+        let isPrimaryFieldFilled = false;
+        // NEW: Check the input that is currently visible
+        if (userHasPassword) {
+            isPrimaryFieldFilled = deletePassword.value.trim().length > 0;
+        } else {
+            // For extra safety, ensure they typed the exact email
+            isPrimaryFieldFilled = confirmationInput.value.trim() === "{{ Auth::user()->email }}";
         }
-         else {
-            confirmDeleteBtn.textContent = 'Delete Account';
+
+        const isConfirmed = confirmCheckbox.checked;
+
+        if (isPrimaryFieldFilled && isConfirmed && countdown <= 0) {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
-      }
     }
-    if(deletePassword) deletePassword.addEventListener('input', validateDeletePopup);
-    if(confirmCheckbox) confirmCheckbox.addEventListener('change', validateDeletePopup);
+
+    // Attach listeners to all relevant inputs
+    if(deletePassword) deletePassword.addEventListener('input', validateDeleteButtonState);
+    if(confirmationInput) confirmationInput.addEventListener('input', validateDeleteButtonState);
+    if(confirmCheckbox) confirmCheckbox.addEventListener('change', validateDeleteButtonState);
+    // You no longer need a separate event listener on the delete button click
 
     const imagePopup = document.getElementById('image-popup');
-function validateDeletePopup() {
-  const isPasswordFilled = deletePassword.value.trim().length > 0;
-  const isCheckboxChecked = confirmCheckbox.checked;
-  confirmDeleteBtn.disabled = !(isPasswordFilled && isCheckboxChecked);
-  confirmDeleteBtn.classList.toggle('opacity-50', !isPasswordFilled || !isCheckboxChecked);
-  confirmDeleteBtn.classList.toggle('cursor-not-allowed', !isPasswordFilled || !isCheckboxChecked);
-}
-
-// Listen for input changes
-deletePassword.addEventListener('input', validateDeletePopup);
-confirmCheckbox.addEventListener('change', validateDeletePopup);
-
-confirmDeleteBtn.addEventListener('click', () => {
-});
-
     function viewImage() {
       if(imagePopup && profilePic && popupImage) {
         popupImage.src = profilePic.src;
@@ -420,6 +440,5 @@ confirmDeleteBtn.addEventListener('click', () => {
         });
     }
   </script>
-
-</body>
+  </body>
 </html>

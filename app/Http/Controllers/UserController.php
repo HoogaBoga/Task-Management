@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\User; // Make sure your User model is in this path
+use Illuminate\Support\Facades\Hash; // <-- Import Hash
 
 class UserController extends Controller
 {
@@ -123,4 +124,152 @@ class UserController extends Controller
         // 7. Redirect back with a success message
         return redirect()->route('user.profile')->with('success', 'Profile picture updated successfully!');
     }
+
+    public function deleteAccount(Request $request)
+{
+    $user = Auth::user();
+    if (!$user) {
+        return back()->with('error', 'User not authenticated');
+    }
+
+    $hasPassword = !empty($user->password);
+
+    if ($hasPassword) {
+        $request->validate(['password' => 'required|string']);
+
+        // Use the correct Supabase authentication endpoint
+        $supabaseUrl = config('services.supabase.url');
+        $supabaseAnonKey = config('services.supabase.anon_key');
+        $supabaseServiceRole = config('services.supabase.service_role_key');
+        $bucket = config('services.supabase.bucket_avatars', 'avatars');
+
+    // Add debugging
+        Log::info('Supabase Config Check:', [
+            'url' => $supabaseUrl ? 'SET' : 'NOT SET',
+            'service_role_key' => $supabaseServiceRole ? 'SET' : 'NOT SET',
+            'bucket' => $bucket
+        ]);
+
+        if (!$supabaseUrl || !$supabaseAnonKey) {
+            Log::error('Supabase credentials missing for password verification.');
+            return back()->with('error', 'Authentication service is misconfigured.');
+        }
+
+        // Use the correct endpoint for password verification
+        $authUrl = $supabaseUrl . '/auth/v1/token?grant_type=password';
+
+        try {
+            $response = Http::withHeaders([
+                'apikey' => $supabaseAnonKey,
+                'Content-Type' => 'application/json',
+            ])->post($authUrl, [
+                'email' => $user->email,
+                'password' => $request->password,
+            ]);
+
+            Log::info('Password verification response status: ' . $response->status());
+            Log::info('Password verification response body: ' . $response->body());
+
+            if ($response->failed()) {
+                $error = $response->json()['error_description'] ?? 'The provided password does not match our records.';
+                Log::warning('Password verification failed: ' . $error);
+                return back()->with('error', $error);
+            }
+
+            Log::info('Password verification successful for user: ' . $user->email);
+
+        } catch (\Exception $e) {
+            Log::error('Password verification error: ' . $e->getMessage());
+            return back()->with('error', 'Unable to verify password. Please try again.');
+        }
+
+    } else {
+        // This part for Google/OAuth users remains the same
+        $request->validate(['confirmation' => 'required|string']);
+        if ($request->confirmation !== $user->email) {
+            return back()->with('error', 'The text you entered did not match your email address.');
+        }
+    }
+
+    $supabaseUrl = config('services.supabase.url');
+    $supabaseServiceRole = config('services.supabase.service_role_key');
+    $bucket = config('services.supabase.bucket_avatars', 'avatars');
+
+    if (!$supabaseUrl || !$supabaseServiceRole) {
+        Log::error('Supabase URL or Service Role Key is not configured.');
+        return back()->with('error', 'Server configuration error. Could not process deletion.');
+    }
+
+    try {
+        // Delete avatar files if they exist
+        if ($user->avatar_url) {
+            $searchPrefix = 'public/' . $user->supabase_id; // Use supabase_id instead of uuid
+
+            $listResponse = Http::withHeaders([
+                'apikey' => $supabaseServiceRole,
+                'Authorization' => 'Bearer ' . $supabaseServiceRole
+            ])->post("$supabaseUrl/storage/v1/object/$bucket/list", [
+                'prefix' => $searchPrefix,
+                'limit' => 10
+            ]);
+
+            if ($listResponse->successful() && !empty($listResponse->json())) {
+                $filesToDelete = $listResponse->json();
+                $fileNames = array_map(function ($file) {
+                    return $file['name'];
+                }, $filesToDelete);
+
+                Http::withHeaders([
+                    'apikey' => $supabaseServiceRole,
+                    'Authorization' => 'Bearer ' . $supabaseServiceRole
+                ])->delete("$supabaseUrl/storage/v1/object/$bucket", [
+                    'prefixes' => $fileNames
+                ]);
+                Log::info('Successfully deleted avatar(s) for user ID: ' . $user->id, ['files' => $fileNames]);
+            }
+        }
+
+        // Delete user from Supabase Auth
+        $authDeleteResponse = Http::withHeaders([
+            'apikey' => $supabaseServiceRole,
+            'Authorization' => 'Bearer ' . $supabaseServiceRole
+        ])->delete("$supabaseUrl/auth/v1/admin/users/{$user->supabase_id}"); // Use supabase_id
+
+        if ($authDeleteResponse->failed()) {
+            Log::error('Failed to delete user from Supabase Auth.', [
+                'status' => $authDeleteResponse->status(),
+                'response' => $authDeleteResponse->body(),
+                'user_supabase_id' => $user->supabase_id
+            ]);
+            return back()->with('error', 'Failed to delete account from the authentication server.');
+        }
+
+        Log::info('Successfully deleted user from Supabase Auth for user ID: ' . $user->id);
+
+        // Log the user out and delete from local database
+        $userIdToDelete = $user->id;
+
+        // Log the user out of the session
+        Auth::logout();
+
+        // Find and delete the user from local database
+        $userToDelete = User::find($userIdToDelete);
+        if ($userToDelete) {
+            $userToDelete->delete();
+            Log::info('Successfully deleted user from local database. User ID: ' . $userIdToDelete);
+        }
+
+        // Clear session data
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Redirect with success message
+        session()->flash('success', 'Your account has been permanently deleted.');
+        return redirect()->route('login');
+
+    } catch (\Exception $e) {
+        Log::error('An Exception occurred during account deletion for user ID: ' . $user->id . ' - ' . $e->getMessage());
+        return back()->with('error', 'An unexpected error occurred. Please contact support.');
+    }
+}
 }
