@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('task_name');
             $table->dateTime('task_deadline')->nullable();
             $table->text('task_description')->nullable();
-            $table->string('category')->nullable();
+            $table->json('category')->nullable();
             $table->enum('priority', ['low', 'high'])->nullable();
             $table->string('image_url')->nullable();
             $table->timestamps();

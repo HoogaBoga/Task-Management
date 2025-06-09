@@ -22,6 +22,13 @@ class Task extends Model
         'status'
     ];
 
+    protected $casts = [
+        'category' => 'array',
+        'task_deadline' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
+
     /**
      * The user who owns the task.
      */

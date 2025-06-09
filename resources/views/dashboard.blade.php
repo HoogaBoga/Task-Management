@@ -196,9 +196,9 @@
 
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
-                                                    @foreach(explode(',', $task->category) as $category)
+                                                    @foreach($task->category as $category)
                                                         <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
-                                                            {{ trim($category) }}
+                                                            {{ $category }}
                                                         </span>
                                                     @endforeach
                                                 </div>
@@ -257,9 +257,9 @@
 
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
-                                                    @foreach(explode(',', $task->category) as $category)
+                                                    @foreach($task->category as $category)
                                                         <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
-                                                            {{ trim($category) }}
+                                                            {{ $category }}
                                                         </span>
                                                     @endforeach
                                                 </div>
@@ -318,9 +318,9 @@
 
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
-                                                    @foreach(explode(',', $task->category) as $category)
+                                                    @foreach($task->category as $category)
                                                         <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
-                                                            {{ trim($category) }}
+                                                            {{ $category }}
                                                         </span>
                                                     @endforeach
                                                 </div>
@@ -400,19 +400,32 @@
                             <option value="completed">Completed</option>
                         </select>
                     </div>
-                     {{-- THIS IS THE NEW CODE --}}
                     <div>
                         <label class="text-gray-600 font-medium">Category</label>
-                        <select id="modalTaskCategoryInput" name="category" disabled
-                                class="w-full bg-gray-50 p-3 rounded-lg border-transparent focus:border-blue-500 focus:ring-blue-500 transition">
-                            <option value="">-- Select a Category --</option>
-                            {{-- Loop through the categories passed from the controller --}}
-                            @if(isset($categories))
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category }}">{{ $category }}</option>
-                                @endforeach
-                            @endif
-                        </select>
+                        <input type="hidden" id="modalTaskCategories" name="categories">
+                        <div class="tags-container flex flex-row gap-2 w-full h-[2.35rem] px-3 py-2 bg-gray-50 overflow-x-auto">
+                            <!-- Tags will be dynamically added here -->
+                            <button type="button" id="add-category-btn" class="tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition hidden" onclick="showTagDropdown()">
+                                <div class="flex items-center justify-center">
+                                    <img src="{{ asset('images/add.svg') }}" alt="Add Tag" class="w-4 h-4">
+                                </div>
+                            </button>
+                            <!-- Tag dropdown menu -->
+                            <div id="tag-dropdown" class="hidden absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                <div class="py-1" role="menu" aria-orientation="vertical">
+                                    <button type="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="addTagFromDropdown('social')">Social</button>
+                                    <button type="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="addTagFromDropdown('life')">Life</button>
+                                    <button type="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="addTagFromDropdown('sports')">Sports</button>
+                                    <button type="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="addTagFromDropdown('school')">School</button>
+                                    <div class="border-t border-gray-100"></div>
+                                    <div class="px-4 py-2">
+                                        <input type="text" id="custom-tag-input" placeholder="Custom tag..."
+                                               class="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                               onkeypress="handleCustomTagInput(event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -538,7 +551,7 @@ document.getElementById('notif-unread').addEventListener('click', () => {
             // Populate the form fields with the task data
             document.getElementById('modalTaskNameInput').value = task.task_name || '';
             document.getElementById('modalTaskDescriptionInput').value = task.task_description || '';
-            document.getElementById('modalTaskCategoryInput').value = task.category || '';
+            document.getElementById('modalTaskCategories').value = task.category ? task.category.join(',') : '';
 
             // For the deadline, we need to format it to YYYY-MM-DD
             if (task.task_deadline) {
@@ -562,6 +575,38 @@ document.getElementById('notif-unread').addEventListener('click', () => {
                 imageContainer.appendChild(img);
             }
 
+            // Clear and reset the categories
+            modalSelectedCategories = [];
+            const container = document.querySelector('.tags-container');
+            const addButton = container.querySelector('#add-category-btn');
+
+            // Remove all existing tag buttons except the add button
+            const existingTags = container.querySelectorAll('.tag-toggle:not(#add-category-btn)');
+            existingTags.forEach(tag => tag.remove());
+
+            // If task has categories, add them
+            if (task.category && Array.isArray(task.category)) {
+                task.category.forEach(category => {
+                    const newButton = document.createElement('button');
+                    newButton.type = 'button';
+                    newButton.className = 'tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group';
+                    newButton.dataset.value = category;
+                    newButton.textContent = category;
+                    newButton.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+
+                    const deleteSpan = document.createElement('span');
+                    deleteSpan.className = 'delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600';
+                    deleteSpan.innerHTML = '×';
+                    deleteSpan.onclick = function(event) { removeModalTag(event, newButton); };
+                    newButton.appendChild(deleteSpan);
+
+                    container.insertBefore(newButton, addButton);
+                    modalSelectedCategories.push(category);
+                });
+            }
+
+            updateModalSelectedCategoriesInput();
+
             // Show the modal
             document.getElementById('taskModal').classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
@@ -583,18 +628,17 @@ document.getElementById('notif-unread').addEventListener('click', () => {
 
         function toggleEditMode(isEditing) {
             const form = document.getElementById('edit-task-form');
-            // Get all input, select, and textarea elements within the form
             const inputs = form.querySelectorAll('input, select, textarea');
+            const addCategoryBtn = document.getElementById('add-category-btn');
+            const tagButtons = document.querySelectorAll('.tag-toggle:not(#add-category-btn)');
 
             inputs.forEach(input => {
                 input.disabled = !isEditing;
-                // Add/remove styling for visual feedback
                 if (isEditing) {
                     input.classList.add('border-gray-300');
                     input.classList.remove('bg-transparent', 'border-0', 'p-0');
                 } else {
                     input.classList.remove('border-gray-300');
-                    // Special handling for the title to make it look like plain text
                     if(input.id === 'modalTaskNameInput') {
                         input.classList.add('bg-transparent', 'border-0', 'p-0');
                     }
@@ -605,6 +649,17 @@ document.getElementById('notif-unread').addEventListener('click', () => {
             document.getElementById('edit-task-btn').classList.toggle('hidden', isEditing);
             document.getElementById('save-task-btn').classList.toggle('hidden', !isEditing);
             document.getElementById('cancel-edit-btn').classList.toggle('hidden', !isEditing);
+
+            // Toggle the visibility of the add category button
+            addCategoryBtn.classList.toggle('hidden', !isEditing);
+
+            // Toggle the delete buttons on tags
+            tagButtons.forEach(button => {
+                const deleteBtn = button.querySelector('.delete-tag');
+                if (deleteBtn) {
+                    deleteBtn.classList.toggle('hidden', !isEditing);
+                }
+            });
         }
 
         // ADD this function for the delete button
@@ -625,6 +680,113 @@ document.getElementById('notif-unread').addEventListener('click', () => {
                 deleteTaskForm.submit();
             }
         }
+
+        let modalSelectedCategories = []; // Initialize as an empty array
+
+        function updateModalSelectedCategoriesInput() {
+            document.getElementById('modalTaskCategories').value = modalSelectedCategories.join(',');
+        }
+
+        function toggleModalCategory(button) {
+            const value = button.dataset.value;
+            const isSelected = button.classList.contains('bg-blue-600');
+
+            if (isSelected) {
+                button.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                button.classList.add('border-gray-400');
+                modalSelectedCategories = modalSelectedCategories.filter(cat => cat !== value);
+            } else {
+                button.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                button.classList.remove('border-gray-400');
+                if (!modalSelectedCategories.includes(value)) {
+                    modalSelectedCategories.push(value);
+                }
+            }
+            updateModalSelectedCategoriesInput();
+        }
+
+        function handleCustomTagInput(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = document.getElementById('custom-tag-input');
+                const customTag = input.value.trim();
+
+                if (customTag) {
+                    addTagFromDropdown(customTag);
+                    input.value = ''; // Clear the input
+                }
+            }
+        }
+
+        function addTagFromDropdown(category) {
+            const container = document.querySelector('.tags-container');
+            const addButton = document.getElementById('add-category-btn');
+
+            // Check if tag already exists
+            if (!modalSelectedCategories.includes(category)) {
+                const newButton = document.createElement('button');
+                newButton.type = 'button';
+                newButton.className = 'tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-dashed border-gray-400 hover:bg-gray-200 transition relative group';
+                newButton.dataset.value = category;
+                newButton.textContent = category;
+                newButton.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+
+                const deleteSpan = document.createElement('span');
+                deleteSpan.className = 'delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:block hover:bg-red-600';
+                deleteSpan.innerHTML = '×';
+                deleteSpan.onclick = function(event) { removeModalTag(event, newButton); };
+                newButton.appendChild(deleteSpan);
+
+                container.insertBefore(newButton, addButton);
+                modalSelectedCategories.push(category);
+                updateModalSelectedCategoriesInput();
+            }
+
+            // Hide the dropdown
+            document.getElementById('tag-dropdown').classList.add('hidden');
+        }
+
+        function showTagDropdown() {
+            const dropdown = document.getElementById('tag-dropdown');
+            const addButton = document.getElementById('add-category-btn');
+            const rect = addButton.getBoundingClientRect();
+
+            dropdown.style.top = `${rect.bottom}px`;
+            dropdown.style.left = `${rect.left}px`;
+            dropdown.classList.toggle('hidden');
+
+            // Focus the custom tag input when dropdown opens
+            if (!dropdown.classList.contains('hidden')) {
+                setTimeout(() => {
+                    document.getElementById('custom-tag-input').focus();
+                }, 100);
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function closeDropdown(e) {
+                if (!dropdown.contains(e.target) && e.target !== addButton) {
+                    dropdown.classList.add('hidden');
+                    document.removeEventListener('click', closeDropdown);
+                }
+            });
+        }
+
+        function removeModalTag(event, tagButton) {
+            event.stopPropagation();
+            const value = tagButton.dataset.value;
+            modalSelectedCategories = modalSelectedCategories.filter(cat => cat !== value);
+            updateModalSelectedCategoriesInput();
+            tagButton.remove();
+        }
+
+        // Update the form submission to handle categories
+        document.getElementById('edit-task-form').addEventListener('submit', function(e) {
+            const categoriesInput = document.getElementById('modalTaskCategories');
+            if (categoriesInput.name !== 'categories') {
+                categoriesInput.name = 'categories';
+            }
+            updateModalSelectedCategoriesInput();
+        });
     </script>
 </body>
 </html>
