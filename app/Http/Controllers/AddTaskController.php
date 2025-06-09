@@ -127,7 +127,7 @@ public function update(Request $request, Task $task)
     public function destroy(Task $task)
     {
         // Authorization: Ensure the user owns the task
-        if ($task->user_id !== Auth::id()) {
+        if ($task->user_id !== Auth::user()->supabase_id) {
             abort(403, 'Unauthorized action.');
         }
 
