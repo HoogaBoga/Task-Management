@@ -21,6 +21,7 @@ export default {
                 "pastel-coral": "#F3A6A2",
                 "brand-blue": "#4A90E2", // For the Sign Up button
                 "body-bg": "#E9F7F8",
+
             },
 
             borderRadius: {

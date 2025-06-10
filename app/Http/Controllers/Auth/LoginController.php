@@ -234,7 +234,6 @@ public function handleProviderCallback(Request $request, string $provider)
                      explode('@', $supabaseUser['email'])[0] ??
                      'Google User',
             'supabase_id' => $supabaseUser['id'],
-            'password' => bcrypt(Str::random(16)),
         ]
     );
 
