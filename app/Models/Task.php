@@ -161,33 +161,4 @@ class Task extends Model
             $this->attributes['category'] = json_encode(is_array($value) ? $value : []);
         }
     }
-
-    /**
-     * Get the category attribute.
-     */
-    public function getCategoryAttribute($value)
-    {
-        if (is_null($value)) {
-            return [];
-        }
-
-        if (is_string($value)) {
-            $decoded = json_decode($value, true);
-            return is_array($decoded) ? $decoded : [];
-        }
-
-        return is_array($value) ? $value : [];
-    }
-
-    /**
-     * Set the category attribute.
-     */
-    public function setCategoryAttribute($value)
-    {
-        if (is_string($value)) {
-            $this->attributes['category'] = json_encode([$value]);
-        } else {
-            $this->attributes['category'] = json_encode(is_array($value) ? $value : []);
-        }
-    }
 }
