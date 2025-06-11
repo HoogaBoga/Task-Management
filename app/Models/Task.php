@@ -22,6 +22,7 @@ class Task extends Model
         'status'
     ];
 
+
     // Cast attributes to proper types
     protected $casts = [
         'task_deadline' => 'datetime',

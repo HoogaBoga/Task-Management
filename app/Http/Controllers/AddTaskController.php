@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
 
+
 class AddTaskController extends Controller
 {
     // Show the upload form
@@ -20,6 +21,7 @@ class AddTaskController extends Controller
     // Handle the form submission and upload the file to Supabase
     public function store(Request $request)
     {
+
         Log::info('AddTaskController@store called');
         Log::info('Request data:', $request->all()); // Debug: Log all request data
 
@@ -143,6 +145,7 @@ class AddTaskController extends Controller
             return back()->with('error', 'Failed to create task: ' . $e->getMessage());
         }
 
+
         return redirect()->route('dashboard')->with('success', 'Task created successfully!');
     }
 
@@ -160,8 +163,14 @@ class AddTaskController extends Controller
             'task_deadline' => 'nullable|date',
             'priority' => 'required|in:low,high',
             'status' => 'required|in:todo,in_progress,completed',
-            'category' => 'nullable|string|max:255',
+            'categories' => 'nullable|string',
         ]);
+
+        // Convert categories string to array
+        if (isset($validated['categories'])) {
+            $validated['category'] = array_filter(explode(',', $validated['categories']));
+            unset($validated['categories']);
+        }
 
         // Update the task with validated data
         $task->update($validated);

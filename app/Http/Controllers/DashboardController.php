@@ -22,6 +22,7 @@ class DashboardController extends Controller
 
         // 1. Fetch tasks using the CORRECT key: $user->supabase_id
         $tasks = Task::where('user_id', $user->supabase_id)->get();
+        $tasksByStatus = $tasks->groupBy('status');
 
         // 2. Group tasks by status (using your original method for consistency)
         $tasksByStatus = [
