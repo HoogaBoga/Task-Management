@@ -24,15 +24,23 @@ class DashboardController extends Controller
         $tasks = Task::where('user_id', $user->supabase_id)->get();
         $tasksByStatus = $tasks->groupBy('status');
 
-        // 2. Get all unique categories from tasks
+        // 2. Group tasks by status (using your original method for consistency)
+        $tasksByStatus = [
+            'todo' => $tasks->where('status', 'todo'),
+            'in_progress' => $tasks->where('status', 'in_progress'),
+            'completed' => $tasks->where('status', 'completed'),
+        ];
+
+        // 3. Get all unique categories from the user's tasks
+        // Updated to handle JSON arrays instead of comma-separated strings
         $allCategories = $tasks->pluck('category')
-            ->filter()
-            ->flatMap(function ($categories) {
-                return is_array($categories) ? $categories : [];
-            })
-            ->unique()
-            ->values()
-            ->toArray();
+            ->whereNotNull()
+            ->flatten() // Flatten arrays of categories
+            ->filter() // Remove empty values
+            ->unique() // Get unique categories
+            ->sort() // Sort alphabetically
+            ->values() // Re-index array
+            ->all();
 
         // 4. Pass BOTH tasks and categories to the view.
         return view('dashboard', [

@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute; // <-- Import this
-use Carbon\Carbon; // <-- Import Carbon
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Carbon\Carbon;
 
 class Task extends Model
 {
@@ -22,11 +22,13 @@ class Task extends Model
         'status'
     ];
 
+
+    // Cast attributes to proper types
     protected $casts = [
-        'category' => 'array',
         'task_deadline' => 'datetime',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        // Removed 'category' => 'array' because we're handling it with accessor/mutator
     ];
 
     /**
@@ -51,24 +53,85 @@ class Task extends Model
         });
     }
 
-     /**
+    /**
+     * Handle category field - convert string to array if needed
+     */
+    protected function category(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if (is_null($value)) {
+                    return [];
+                }
+
+                // If it's already an array, return it
+                if (is_array($value)) {
+                    return $value;
+                }
+
+                // If it's a JSON string, decode it
+                if (is_string($value) && (str_starts_with($value, '[') || str_starts_with($value, '{'))) {
+                    $decoded = json_decode($value, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        return $decoded;
+                    }
+                }
+
+                // If it's a comma-separated string, convert to array
+                if (is_string($value)) {
+                    return array_map('trim', explode(',', $value));
+                }
+
+                return [];
+            },
+            set: function ($value) {
+                if (is_null($value)) {
+                    return null;
+                }
+
+                if (is_array($value)) {
+                    return json_encode($value);
+                }
+
+                if (is_string($value)) {
+                    // Convert comma-separated string to array, then to JSON
+                    $array = array_map('trim', explode(',', $value));
+                    return json_encode($array);
+                }
+
+                return json_encode([]);
+            }
+        );
+    }
+
+    /**
      * Get the task's deadline in the correct timezone for display.
      */
     protected function taskDeadline(): Attribute
     {
         return Attribute::make(
-            // The 'get' accessor is called when you access the attribute
-            get: fn ($value) => Carbon::parse($value)->timezone('Asia/Manila'),
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Manila') : null,
+            set: fn ($value) => $value ? Carbon::parse($value)->utc() : null,
         );
     }
 
     /**
-     * You can do the same for created_at and updated_at
+     * Handle created_at timezone conversion
      */
     protected function createdAt(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => Carbon::parse($value)->timezone('Asia/Manila'),
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Manila') : null,
+        );
+    }
+
+    /**
+     * Handle updated_at timezone conversion
+     */
+    protected function updatedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Manila') : null,
         );
     }
 }
