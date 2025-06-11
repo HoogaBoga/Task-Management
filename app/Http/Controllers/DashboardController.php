@@ -22,6 +22,14 @@ class DashboardController extends Controller
 
         // 1. Fetch tasks using the CORRECT key: $user->supabase_id
         $tasks = Task::where('user_id', $user->supabase_id)->get();
+
+        // Ensure categories are properly handled
+        $tasks->each(function ($task) {
+            if (is_string($task->category)) {
+                $task->category = json_decode($task->category, true) ?? [];
+            }
+        });
+
         $tasksByStatus = $tasks->groupBy('status');
 
         // 2. Get all unique categories from tasks

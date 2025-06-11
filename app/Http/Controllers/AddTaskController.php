@@ -32,18 +32,47 @@ class AddTaskController extends Controller
             'categories' => 'nullable|string',
         ]);
 
-        // Convert categories string to array
+        // Convert categories string to array and clean it
         if (isset($validated['categories'])) {
-            $validated['category'] = array_filter(explode(',', $validated['categories']));
+            $categories = array_filter(array_map('trim', explode(',', $validated['categories'])));
+            $validated['category'] = $categories;
             unset($validated['categories']);
+        } else {
+            $validated['category'] = [];
         }
 
         $task = new Task($validated);
         $task->user_id = Auth::user()->supabase_id;
 
         if ($request->hasFile('task_image')) {
-            $path = $request->file('task_image')->store('task-images', 'public');
-            $task->image_url = Storage::url($path);
+            $file = $request->file('task_image');
+            $fileName = Str::uuid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+            // Get the file content and ensure it's properly encoded
+            $fileContent = file_get_contents($file->getRealPath());
+            if ($fileContent === false) {
+                return redirect()->back()->with('error', 'Failed to read image file.');
+            }
+
+            // Upload to Supabase storage using HTTP client
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.supabase.service_role_key'),
+                    'Content-Type' => $file->getMimeType(),
+                ])->withBody($fileContent, $file->getMimeType())
+                  ->put(
+                    config('services.supabase.url') . '/storage/v1/object/task-images/tasks/' . $fileName
+                );
+
+                if ($response->successful()) {
+                    // Set the image URL to the Supabase public URL
+                    $task->image_url = config('services.supabase.url') . '/storage/v1/object/public/task-images/tasks/' . $fileName;
+                } else {
+                    return redirect()->back()->with('error', 'Failed to upload image to storage.');
+                }
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Error uploading image: ' . $e->getMessage());
+            }
         }
 
         $task->save();
@@ -68,10 +97,13 @@ class AddTaskController extends Controller
             'categories' => 'nullable|string',
         ]);
 
-        // Convert categories string to array
+        // Convert categories string to array and clean it
         if (isset($validated['categories'])) {
-            $validated['category'] = array_filter(explode(',', $validated['categories']));
+            $categories = array_filter(array_map('trim', explode(',', $validated['categories'])));
+            $validated['category'] = $categories;
             unset($validated['categories']);
+        } else {
+            $validated['category'] = [];
         }
 
         // Update the task with validated data
@@ -96,4 +128,3 @@ class AddTaskController extends Controller
     }
 
 }
-
