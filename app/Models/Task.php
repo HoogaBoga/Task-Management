@@ -22,11 +22,13 @@ class Task extends Model
         'status'
     ];
 
+
+    // Cast attributes to proper types
     protected $casts = [
-        'category' => 'array',
         'task_deadline' => 'datetime',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        // Removed 'category' => 'array' because we're handling it with accessor/mutator
     ];
 
     /**
