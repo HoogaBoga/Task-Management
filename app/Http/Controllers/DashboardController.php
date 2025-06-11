@@ -30,19 +30,15 @@ class DashboardController extends Controller
             'completed' => $tasks->where('status', 'completed'),
         ];
 
-        // 3. Get all unique categories from the user's tasks. This logic is still correct.
+        // 3. Get all unique categories from the user's tasks
+        // Updated to handle JSON arrays instead of comma-separated strings
         $allCategories = $tasks->pluck('category')
             ->whereNotNull()
-            ->flatMap(function ($categoryString) {
-                return explode(',', $categoryString);
-            })
-            ->map(function ($category) {
-                return trim($category);
-            })
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values()
+            ->flatten() // Flatten arrays of categories
+            ->filter() // Remove empty values
+            ->unique() // Get unique categories
+            ->sort() // Sort alphabetically
+            ->values() // Re-index array
             ->all();
 
         // 4. Pass BOTH tasks and categories to the view.

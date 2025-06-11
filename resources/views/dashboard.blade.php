@@ -196,7 +196,7 @@
 
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
-                                                    @foreach(explode(',', $task->category) as $category)
+@foreach($task->category ?? [] as $category)
                                                         <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
                                                             {{ trim($category) }}
                                                         </span>
@@ -257,7 +257,7 @@
 
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
-                                                    @foreach(explode(',', $task->category) as $category)
+@foreach($task->category ?? [] as $category)
                                                         <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
                                                             {{ trim($category) }}
                                                         </span>
@@ -318,7 +318,7 @@
 
                                             @if($task->category)
                                                 <div class="mt-2 flex flex-wrap gap-1">
-                                                    @foreach(explode(',', $task->category) as $category)
+@foreach($task->category ?? [] as $category)
                                                         <span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold " style="background-color: #ee6c4d;">
                                                             {{ trim($category) }}
                                                         </span>

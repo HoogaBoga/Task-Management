@@ -8,8 +8,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
-use Supabase\Storage\StorageClient;
-
 
 class AddTaskController extends Controller
 {
@@ -21,84 +19,134 @@ class AddTaskController extends Controller
 
     // Handle the form submission and upload the file to Supabase
     public function store(Request $request)
-{
-    Log::info('AddTaskController@store called');
+    {
+        Log::info('AddTaskController@store called');
+        Log::info('Request data:', $request->all()); // Debug: Log all request data
 
-    $user = Auth::user();
-    if (!$user) {
-        Log::warning('User not logged in when trying to add task');
-        return redirect()->route('login')->with('error', 'Please log in first.');
-    }
+        $user = Auth::user();
+        if (!$user) {
+            Log::warning('User not logged in when trying to add task');
+            return redirect()->route('login')->with('error', 'Please log in first.');
+        }
 
-    $request->validate([
-        'task_name' => 'required|string',
-        'task_description' => 'nullable|string',
-        'task_image' => 'nullable|image|max:2048', // Max 2MB
-    ]);
+        Log::info('User authenticated:', ['user_id' => $user->id, 'supabase_id' => $user->supabase_id]);
 
-    $imageUrl = null;
-    $file = $request->file('task_image');
+        // Validate the request
+        $validated = $request->validate([
+            'task_name' => 'required|string|max:255',
+            'task_description' => 'nullable|string',
+            'task_deadline' => 'nullable|date',
+            'priority' => 'required|in:low,high',
+            'status' => 'nullable|in:todo,in_progress,completed',
+            'categories' => 'nullable|string|max:255', // Fixed: was 'category' in validation but 'categories' in form
+            'task_image' => 'nullable|image|max:2048', // Max 2MB
+        ]);
 
-    if ($file) {
-        Log::info('Image uploaded with original name: ' . $file->getClientOriginalName());
+        Log::info('Validation passed:', $validated);
 
-        $bucket = env('SUPABASE_BUCKET', 'tasks');
-        $supabaseUrl = env('SUPABASE_URL');
-        $supabaseKey = env('SUPABASE_SERVICE_ROLE');
+        $imageUrl = null;
+        $file = $request->file('task_image');
 
-        $fileName = 'tasks/' . $user->id . '_' . time() . '.' . Str::slug($file->getClientOriginalExtension());
+        if ($file) {
+            Log::info('Image uploaded with original name: ' . $file->getClientOriginalName());
 
-        try {
-            $uploadResponse = Http::withHeaders([
-                'apikey' => $supabaseKey,
-                'Authorization' => 'Bearer ' . $supabaseKey,
-            ])->attach(
-                'file', file_get_contents($file), $fileName, [
-                    'Content-Type' => $file->getMimeType(),
-                ]
-            )->post("$supabaseUrl/storage/v1/object/$bucket/$fileName");
+            $bucket = env('SUPABASE_BUCKET', 'tasks');
+            $supabaseUrl = env('SUPABASE_URL');
+            $supabaseKey = env('SUPABASE_SERVICE_ROLE');
 
-            if ($uploadResponse->failed()) {
-                Log::error('Failed to upload task image to Supabase.', [
-                    'status' => $uploadResponse->status(),
-                    'response' => $uploadResponse->body(),
+            // Check if Supabase credentials are set
+            if (!$supabaseUrl || !$supabaseKey) {
+                Log::error('Supabase credentials missing', [
+                    'supabase_url' => $supabaseUrl ? 'set' : 'missing',
+                    'supabase_key' => $supabaseKey ? 'set' : 'missing'
                 ]);
-                return back()->with('error', 'Failed to upload task image.');
+                return back()->with('error', 'Supabase configuration error.');
             }
 
-            $imageUrl = "$supabaseUrl/storage/v1/object/public/$bucket/$fileName";
-            Log::info('Image uploaded successfully. Public URL: ' . $imageUrl);
+            // Fixed: Use getClientOriginalExtension() instead of Str::slug()
+            $fileName = 'tasks/' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+            try {
+                $uploadResponse = Http::withHeaders([
+                    'apikey' => $supabaseKey,
+                    'Authorization' => 'Bearer ' . $supabaseKey,
+                ])->attach(
+                    'file', file_get_contents($file), $fileName, [
+                        'Content-Type' => $file->getMimeType(),
+                    ]
+                )->post("$supabaseUrl/storage/v1/object/$bucket/$fileName");
+
+                Log::info('Supabase upload response:', [
+                    'status' => $uploadResponse->status(),
+                    'body' => $uploadResponse->body()
+                ]);
+
+                if ($uploadResponse->failed()) {
+                    Log::error('Failed to upload task image to Supabase.', [
+                        'status' => $uploadResponse->status(),
+                        'response' => $uploadResponse->body(),
+                    ]);
+                    return back()->with('error', 'Failed to upload task image.');
+                }
+
+                $imageUrl = "$supabaseUrl/storage/v1/object/public/$bucket/$fileName";
+                Log::info('Image uploaded successfully. Public URL: ' . $imageUrl);
+
+            } catch (\Exception $e) {
+                Log::error('Exception while uploading image', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return back()->with('error', 'Error uploading image: ' . $e->getMessage());
+            }
+        }
+
+        try {
+            Log::info('Creating task with data:', [
+                'user_id' => $user->supabase_id,
+                'task_name' => $request->task_name,
+                'priority' => $request->priority,
+                'task_deadline' => $request->task_deadline,
+                'task_description' => $request->task_description,
+                'category' => $request->categories, // Fixed: use 'categories' from form
+                'image_url' => $imageUrl,
+                'status' => $request->input('status', 'todo'),
+            ]);
+
+            // Handle categories - convert to array if it's a string
+            $categories = $request->categories;
+            if (is_string($categories)) {
+                // If it's comma-separated string, convert to array
+                $categories = array_map('trim', explode(',', $categories));
+            } elseif (is_null($categories)) {
+                $categories = [];
+            }
+
+            $task = Task::create([
+                'user_id' => $user->supabase_id,
+                'task_name' => $request->task_name,
+                'priority' => $request->priority,
+                'task_deadline' => $request->task_deadline,
+                'task_description' => $request->task_description,
+                'category' => $categories, // Now properly formatted as array for JSON
+                'image_url' => $imageUrl,
+                'status' => $request->input('status', 'todo'),
+            ]);
+
+            Log::info('Task created successfully with ID: ' . $task->id);
 
         } catch (\Exception $e) {
-            Log::error('Exception while uploading image', [
-                'message' => $e->getMessage()
+            Log::error('Error creating task: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
             ]);
-            return back()->with('error', 'Error uploading image.');
+            return back()->with('error', 'Failed to create task: ' . $e->getMessage());
         }
+
+        return redirect()->route('dashboard')->with('success', 'Task created successfully!');
     }
 
-    try {
-        $task = Task::create([
-            'user_id' => $user->supabase_id,
-            'task_name' => $request->task_name,
-            'priority' => $request->priority,
-            'task_deadline' => $request->task_deadline,
-            'task_description' => $request->task_description,
-            'category' => $request->categories,
-            'image_url' => $imageUrl,
-            'status' => $request->input('status', 'todo'), // fallback to 'todo' if none provided
-
-        ]);
-        Log::info('Task created with ID: ' . $task->id);
-    } catch (\Exception $e) {
-        Log::error('Error creating task: ' . $e->getMessage(), ['exception' => $e]);
-        return back()->with('error', 'Failed to create task.');
-    }
-
-    return redirect()->route('dashboard')->with('success', 'Task created successfully!');
-}
-
-public function update(Request $request, Task $task)
+    public function update(Request $request, Task $task)
     {
         // Authorization: Ensure the user owns the task
         if ($task->user_id !== Auth::user()->supabase_id) {
@@ -135,6 +183,4 @@ public function update(Request $request, Task $task)
 
         return redirect()->route('dashboard')->with('success', 'Task deleted successfully.');
     }
-
 }
-
