@@ -44,6 +44,7 @@
             <div class="relative">
               <button title="Notifications" id="desktop-bell-icon" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95 cursor-pointer">
                 <img src="{{ asset('images/bell.svg') }}" alt="bell" class="w-8 h-8">
+                <span id="desktop-notif-badge" class="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-[#F1F2F6] hidden"></span>
               </button>
             </div>
             <a href="{{ route('user.profile') }}" title="Profile" class="p-3 rounded-xl hover:bg-slate-300 active:bg-slate-400 transition-all duration-150 ease-in-out group hover:scale-110 active:scale-95">
@@ -65,18 +66,20 @@
     </aside>
 
     <div id="main-content" class="p-6 md:p-8 pb-24 md:pb-8">
-        <div id="notification-popup" class="fixed bottom-20 right-4 md:top-16 md:right-24 md:bottom-auto w-80 bg-white rounded-xl shadow-lg border border-gray-200 hidden z-50">
+        <div id="notification-popup" class="fixed bottom-20 right-4 md:top-16 md:right-24 md:bottom-auto w-80 bg-white rounded-xl shadow-lg border border-gray-200 hidden z-50 flex flex-col">
             <div class="p-4 border-b border-gray-300">
               <h3 class="text-lg font-bold">Notifications</h3>
             </div>
-            <div class="flex items-center justify-between px-4 py-2">
+            <div class="flex items-center justify-between px-4 py-2 border-b">
               <div class="flex gap-2">
                 <button id="notif-all" class="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700">All</button>
                 <button id="notif-unread" class="text-sm font-medium px-3 py-1 rounded-full hover:bg-gray-200">Unread</button>
               </div>
-              <button id="mark-read" class="text-sm text-blue-600 underline hover:text-blue-800">Mark all as Read</button>
+              <button id="mark-read" class="text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed" disabled>Mark all as read</button>
             </div>
-            <div class="p-4 text-sm text-gray-500">No new notifications.</div>
+            <div id="notification-list" class="flex-grow overflow-y-auto" style="max-height: 400px;">
+                <div class="p-4 text-sm text-gray-500 text-center">Loading...</div>
+            </div>
         </div>
 
         <div class="md:hidden mb-6">
@@ -151,10 +154,12 @@
                                     'in_progress' => '#5B84AE',
                                     'completed' => '#86BBD8'
                                 ];
+                                $taskJson = json_encode($task);
                             @endphp
                             <div class="w-72 h-80 flex-shrink-0 rounded-2xl p-4 shadow-lg cursor-pointer transition-all hover:shadow-xl flex flex-col text-white"
                                 style="background-color: {{ $statusColors[$status] }};"
-                                onclick="showTaskDetails({{ json_encode($task) }})">
+                                data-task='{{ $taskJson }}'
+                                onclick="showTaskDetails(this)">
                                 @if($task->image_url)
                                     <div class="h-36 w-full mb-3 overflow-hidden rounded-lg">
                                         <img src="{{ $task->image_url }}" alt="Task Image" class="h-full w-full object-cover" />
@@ -165,7 +170,7 @@
                                     <div class="mt-auto">
                                         <div class="flex justify-between items-center text-sm">
                                             <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> {{ $task->task_deadline ? \Carbon\Carbon::parse($task->task_deadline)->format('M d, Y') : 'No deadline' }}</span>
-                                            <span class="px-2 py-1 rounded-full text-xs {{ $task->priority === 'high' ? 'bg-red-400' : ($task->priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400') }}">{{ ucfirst($task->priority) }}</span>
+                                            <span class="px-2 py-1 rounded-full text-xs {{ $task->priority === 'high' ? 'bg-red-400' : 'bg-green-400' }}">{{ ucfirst($task->priority) }}</span>
                                         </div>
                                         @if(!empty($task->category))
                                             <div class="mt-2 flex flex-wrap gap-1">
@@ -191,8 +196,9 @@
                 <a href="{{ route('dashboard') }}" title="Dashboard" class="p-3 {{ request()->routeIs('dashboard') ? 'text-blue-500' : 'text-gray-500' }} hover:text-blue-500">
                     <i class="fas fa-home text-xl"></i>
                 </a>
-                <a href="#" id="mobile-bell-icon" title="Notifications" class="p-3 text-gray-500 hover:text-blue-500">
+                <a href="#" id="mobile-bell-icon" title="Notifications" class="p-3 text-gray-500 hover:text-blue-500 relative">
                     <i class="fas fa-bell text-xl"></i>
+                    <span id="mobile-notif-badge" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white hidden"></span>
                 </a>
                 <a href="{{ route('tasks.create') }}" title="Add Task" class="p-3 text-gray-500 hover:text-blue-500 -mt-8">
                     <div class="bg-blue-600 text-white p-4 rounded-full shadow-lg">
@@ -211,14 +217,78 @@
             </div>
         </div>
 
-        <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-            {{-- All the modal HTML is still here, just collapsed for brevity --}}
+        <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 overflow-y-auto" onclick="closeModal()">
+             <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-auto transform transition-all" onclick="event.stopPropagation()">
+                <form id="edit-task-form" method="POST" action="" enctype="multipart/form-data"
+                    data-update-url-template="{{ route('tasks.update', ['task' => 'TASK_ID_PLACEHOLDER']) }}"
+                    data-destroy-url-template="{{ route('tasks.destroy', ['task' => 'TASK_ID_PLACEHOLDER']) }}">
+                    @csrf
+                    @method('PATCH')
+                    <div class="p-6 space-y-4">
+                        <input id="modalTaskNameInput" name="task_name" type="text" class="text-2xl font-bold w-full outline-none p-0 border-0 bg-transparent focus:ring-0" placeholder="Task Name" disabled>
+
+                        <div id="modalTaskImage" class="mb-4"></div>
+                        <input type="file" name="image" id="modalTaskImageInput" class="hidden" disabled>
+
+                        <textarea id="modalTaskDescriptionInput" name="task_description" class="w-full h-24 text-gray-600 outline-none resize-none border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Add a description..." disabled></textarea>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="modalTaskDeadlineInput" class="text-sm font-medium text-gray-500">Deadline</label>
+                                <input id="modalTaskDeadlineInput" name="task_deadline" type="date" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
+                            </div>
+                            <div>
+                                <label for="modalTaskPriorityInput" class="text-sm font-medium text-gray-500">Priority</label>
+                                <select id="modalTaskPriorityInput" name="priority" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
+                                    <option value="low">Low</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="modalTaskStatusInput" class="text-sm font-medium text-gray-500">Status</label>
+                                <select id="modalTaskStatusInput" name="status" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" disabled>
+                                    <option value="todo">To Do</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Categories</label>
+                            <div class="tags-container mt-2 flex flex-wrap items-center gap-2">
+                                <button type="button" id="add-category-btn" onclick="showTagDropdown()" class="hidden flex-shrink-0 text-blue-600 border border-dashed border-blue-600 rounded-lg px-3 py-1 text-sm hover:bg-blue-50">
+                                    + Add
+                                </button>
+                                <div id="tag-dropdown" class="absolute mt-2 w-48 bg-white rounded-md shadow-lg z-10 hidden">
+                                    <input type="text" placeholder="New category..." onkeydown="handleCustomTagInput(event)" class="block w-full px-4 py-2 text-gray-800 border-b focus:outline-none">
+                                    <div id="existing-tags-list">
+                                        @foreach($categories as $category)
+                                            <a href="#" onclick="addTagFromDropdown('{{$category}}')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{$category}}</a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="categories" id="modalTaskCategories">
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 px-6 py-4 flex justify-between items-center rounded-b-2xl">
+                        <button type="button" onclick="deleteTask()" class="text-red-600 hover:text-red-800 font-semibold">Delete Task</button>
+                        <div>
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-600 font-semibold rounded-lg hover:bg-gray-200">Close</button>
+                            <button type="button" id="edit-task-btn" onclick="toggleEditMode(true)" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Edit</button>
+                            <button type="button" id="cancel-edit-btn" onclick="toggleEditMode(false)" class="hidden px-4 py-2 text-gray-600 font-semibold rounded-lg hover:bg-gray-200">Cancel</button>
+                            <button type="submit" id="save-task-btn" class="hidden px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-
     <script>
-        // SCRIPT FOR SIDEBAR AND NOTIFICATIONS
+        // SCRIPT FOR SIDEBAR AND NOTIFICATION POPUP
         document.addEventListener('DOMContentLoaded', () => {
             // Sidebar Toggle
             const toggleButton = document.getElementById('sidebar-toggle-button');
@@ -236,16 +306,22 @@
             const desktopBell = document.getElementById('desktop-bell-icon');
             const mobileBell = document.getElementById('mobile-bell-icon');
             const notificationPopup = document.getElementById('notification-popup');
+
             const togglePopup = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 notificationPopup.classList.toggle('hidden');
+                if (!notificationPopup.classList.contains('hidden')) {
+                    fetchNotifications();
+                }
             };
+
             if (desktopBell) desktopBell.addEventListener('click', togglePopup);
             if (mobileBell) mobileBell.addEventListener('click', togglePopup);
 
             if (notificationPopup) {
                 document.addEventListener('click', (e) => {
+                    if (notificationPopup.classList.contains('hidden')) return;
                     const isClickInsidePopup = notificationPopup.contains(e.target);
                     const isClickOnDesktopBell = desktopBell ? desktopBell.contains(e.target) : false;
                     const isClickOnMobileBell = mobileBell ? mobileBell.contains(e.target) : false;
@@ -253,112 +329,254 @@
                         notificationPopup.classList.add('hidden');
                     }
                 });
-                document.getElementById('notif-all').addEventListener('click', () => {
-                  document.getElementById('notif-all').classList.add('bg-blue-100', 'text-blue-700');
-                  document.getElementById('notif-unread').classList.remove('bg-blue-100', 'text-blue-700');
-                });
-                document.getElementById('notif-unread').addEventListener('click', () => {
-                  document.getElementById('notif-unread').classList.add('bg-blue-100', 'text-blue-700');
-                  document.getElementById('notif-all').classList.remove('bg-blue-100', 'text-blue-700');
+            }
+        });
+    </script>
+
+    <script>
+        // SCRIPT FOR NOTIFICATION LOGIC
+        document.addEventListener('DOMContentLoaded', function() {
+            let allNotifications = [];
+            let currentFilter = 'all';
+
+            const notificationList = document.getElementById('notification-list');
+            const markReadBtn = document.getElementById('mark-read');
+            const notifAllBtn = document.getElementById('notif-all');
+            const notifUnreadBtn = document.getElementById('notif-unread');
+
+            window.fetchNotifications = async function() {
+                @if (Route::has('notifications.index'))
+                    try {
+                        const response = await fetch("{{ route('notifications.index') }}");
+                        if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+                        const data = await response.json();
+                        allNotifications = data.notifications || [];
+                        updateNotificationBadge(data.unread_count || 0);
+                        renderNotifications();
+                    } catch (error) {
+                        console.error('Error fetching notifications:', error);
+                        if(notificationList) notificationList.innerHTML = `<div class="p-4 text-sm text-gray-500 text-center">Failed to load notifications.</div>`;
+                    }
+                @else
+                    if(notificationList) notificationList.innerHTML = `<div class="p-4 text-sm text-gray-500 text-center">Notification route not found.</div>`;
+                @endif
+            };
+
+            function renderNotifications() {
+                if (!notificationList) return;
+                const filtered = currentFilter === 'unread'
+                    ? allNotifications.filter(n => !n.read_at)
+                    : allNotifications;
+                notificationList.innerHTML = '';
+                if (filtered.length === 0) {
+                    const message = currentFilter === 'unread' ? 'No unread notifications.' : 'You have no notifications.';
+                    notificationList.innerHTML = `<div class="p-4 text-sm text-gray-500 text-center">${message}</div>`;
+                } else {
+                    filtered.forEach(notif => {
+                        const isUnread = !notif.read_at;
+                        const notifElement = `
+                            <div class="p-3 border-b border-gray-200 hover:bg-gray-50 flex items-start gap-3 ${isUnread ? 'font-semibold cursor-pointer' : ''}"
+                                 data-id="${notif.id}"
+                                 onclick="markNotificationAsRead(this)">
+                                ${isUnread ? '<div class="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>' : '<div class="w-2 h-2"></div>'}
+                                <div class="flex-grow">
+                                    <p class="text-sm text-gray-800">${notif.data.message || 'New notification'}</p>
+                                    <p class="text-xs text-gray-500 mt-1 font-normal">${new Date(notif.created_at).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        `;
+                        notificationList.insertAdjacentHTML('beforeend', notifElement);
+                    });
+                }
+                const hasUnread = allNotifications.some(n => !n.read_at);
+                if(markReadBtn) markReadBtn.disabled = !hasUnread;
+            }
+
+            function updateNotificationBadge(unreadCount) {
+                const badges = [document.getElementById('desktop-notif-badge'), document.getElementById('mobile-notif-badge')];
+                badges.forEach(badge => {
+                    if (badge) {
+                        if (unreadCount > 0) {
+                            badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    }
                 });
             }
+
+            window.markNotificationAsRead = async function(element) {
+                const notifId = element.dataset.id;
+                if (!element.classList.contains('font-semibold')) return;
+
+                @if (Route::has('notifications.markAsRead'))
+                    try {
+                        let url = "{{ route('notifications.markAsRead', ['notification' => 'NOTIF_ID']) }}";
+                        url = url.replace('NOTIF_ID', notifId);
+
+                        await fetch(url, {
+                            method: 'PATCH',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                        });
+                        fetchNotifications();
+                    } catch (error) {
+                        console.error('Error marking notification as read:', error);
+                    }
+                @endif
+            }
+
+            async function markAllAsRead() {
+                if(markReadBtn) markReadBtn.disabled = true;
+                 @if (Route::has('notifications.markAllAsRead'))
+                    try {
+                        await fetch("{{ route('notifications.markAllAsRead') }}", {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                        });
+                        fetchNotifications();
+                    } catch (error) {
+                        console.error('Error marking notifications as read:', error);
+                        if(markReadBtn) markReadBtn.disabled = false;
+                    }
+                @endif
+            }
+
+            if(notifAllBtn) notifAllBtn.addEventListener('click', () => {
+                currentFilter = 'all';
+                notifAllBtn.classList.add('bg-blue-100', 'text-blue-700');
+                notifUnreadBtn.classList.remove('bg-blue-100', 'text-blue-700');
+                renderNotifications();
+            });
+
+            if(notifUnreadBtn) notifUnreadBtn.addEventListener('click', () => {
+                currentFilter = 'unread';
+                notifUnreadBtn.classList.add('bg-blue-100', 'text-blue-700');
+                notifAllBtn.classList.remove('bg-blue-100', 'text-blue-700');
+                renderNotifications();
+            });
+
+            if(markReadBtn) markReadBtn.addEventListener('click', markAllAsRead);
+
+            fetchNotifications();
         });
     </script>
 
     <script>
         // SCRIPT FOR TASK MODAL (VIEW/EDIT/DELETE)
         let modalSelectedCategories = [];
+        let currentTask = null;
 
-        function showTaskDetails(task) {
+        function showTaskDetails(element) {
+            currentTask = JSON.parse(element.dataset.task);
+            const taskModal = document.getElementById('taskModal');
             const form = document.getElementById('edit-task-form');
-            const urlTemplate = form.dataset.updateUrlTemplate;
-            form.action = urlTemplate.replace('TASK_ID_PLACEHOLDER', task.id);
 
-            document.getElementById('modalTaskNameInput').value = task.task_name || '';
-            document.getElementById('modalTaskDescriptionInput').value = task.task_description || '';
+            if (form && taskModal && currentTask) {
+                const urlTemplate = form.dataset.updateUrlTemplate;
+                form.action = urlTemplate.replace('TASK_ID_PLACEHOLDER', currentTask.id);
 
-            if (task.task_deadline) {
-                document.getElementById('modalTaskDeadlineInput').value = new Date(task.task_deadline).toISOString().split('T')[0];
-            } else {
-                document.getElementById('modalTaskDeadlineInput').value = '';
+                document.getElementById('modalTaskNameInput').value = currentTask.task_name || '';
+                document.getElementById('modalTaskDescriptionInput').value = currentTask.task_description || '';
+
+                if (currentTask.task_deadline) {
+                    document.getElementById('modalTaskDeadlineInput').value = new Date(currentTask.task_deadline).toISOString().split('T')[0];
+                } else {
+                    document.getElementById('modalTaskDeadlineInput').value = '';
+                }
+
+                document.getElementById('modalTaskPriorityInput').value = currentTask.priority || 'low';
+                document.getElementById('modalTaskStatusInput').value = currentTask.status || 'todo';
+
+                const imageContainer = document.getElementById('modalTaskImage');
+                imageContainer.innerHTML = '';
+                if (currentTask.image_url) {
+                    imageContainer.innerHTML = `<img src="${currentTask.image_url}" alt="Task image" class="w-full h-48 object-cover rounded-lg">`;
+                }
+
+                renderModalCategories(currentTask.category || []);
+                taskModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                toggleEditMode(false);
             }
-
-            document.getElementById('modalTaskPriorityInput').value = task.priority || 'low';
-            document.getElementById('modalTaskStatusInput').value = task.status || 'todo';
-
-            const imageContainer = document.getElementById('modalTaskImage');
-            imageContainer.innerHTML = '';
-            if (task.image_url) {
-                imageContainer.innerHTML = `<img src="${task.image_url}" alt="Task image" class="w-full h-48 object-cover rounded-lg">`;
-            }
-
-            // Render categories
-            renderModalCategories(task.category || []);
-
-            document.getElementById('taskModal').classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-            toggleEditMode(false); // Reset to view mode
         }
 
         function renderModalCategories(categories) {
             const container = document.querySelector('.tags-container');
             const addButton = document.getElementById('add-category-btn');
-            container.innerHTML = ''; // Clear all previous tags
-            container.appendChild(addButton); // Re-add the add button
+            if (container && addButton) {
+                const tagsToRemove = container.querySelectorAll('.tag-toggle');
+                tagsToRemove.forEach(tag => tag.remove());
 
-            modalSelectedCategories = [];
-            if (categories && Array.isArray(categories)) {
-                categories.forEach(category => addTagToModal(category, false));
+                modalSelectedCategories = [];
+                if (categories && Array.isArray(categories)) {
+                    categories.forEach(category => addTagToModal(category, false));
+                }
+                updateModalCategoriesInput();
             }
-            updateModalCategoriesInput();
         }
 
         function closeModal() {
-            document.getElementById('taskModal').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
+            const taskModal = document.getElementById('taskModal');
+            if (taskModal) {
+                taskModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
         }
 
         function toggleEditMode(isEditing) {
             const form = document.getElementById('edit-task-form');
-            const inputs = form.querySelectorAll('input, select, textarea');
-            const addCategoryBtn = document.getElementById('add-category-btn');
+            if(form) {
+                const inputs = form.querySelectorAll('input:not([type=hidden]), select, textarea');
+                const addCategoryBtn = document.getElementById('add-category-btn');
 
-            inputs.forEach(input => {
-                const isNameInput = input.id === 'modalTaskNameInput';
-                input.disabled = !isEditing;
-                if (isEditing) {
-                    input.classList.remove('bg-transparent', 'border-0', 'p-0');
-                    if (!isNameInput) input.classList.add('border-gray-300');
-                } else if (isNameInput) {
-                    input.classList.add('bg-transparent', 'border-0', 'p-0');
-                }
-            });
+                inputs.forEach(input => {
+                    input.disabled = !isEditing;
+                });
 
-            document.getElementById('edit-task-btn').classList.toggle('hidden', isEditing);
-            document.getElementById('save-task-btn').classList.toggle('hidden', !isEditing);
-            document.getElementById('cancel-edit-btn').classList.toggle('hidden', !isEditing);
-            addCategoryBtn.classList.toggle('hidden', !isEditing);
+                document.getElementById('edit-task-btn').classList.toggle('hidden', isEditing);
+                document.getElementById('save-task-btn').classList.toggle('hidden', !isEditing);
+                document.getElementById('cancel-edit-btn').classList.toggle('hidden', !isEditing);
+                if(addCategoryBtn) addCategoryBtn.classList.toggle('hidden', !isEditing);
 
-            document.querySelectorAll('.delete-tag').forEach(btn => {
-                btn.classList.toggle('hidden', !isEditing);
-            });
+                document.querySelectorAll('.delete-tag').forEach(btn => {
+                    btn.classList.toggle('hidden', !isEditing);
+                });
+            }
         }
 
         function deleteTask() {
             if (confirm('Are you sure you want to delete this task? This cannot be undone.')) {
                 const form = document.getElementById('edit-task-form');
-                const deleteForm = document.createElement('form');
-                deleteForm.method = 'POST';
-                deleteForm.action = form.action;
-                deleteForm.innerHTML = `@csrf @method('DELETE')`;
-                document.body.appendChild(deleteForm);
-                deleteForm.submit();
+                if (form && currentTask) {
+                    const urlTemplate = form.dataset.destroyUrlTemplate;
+                    const deleteUrl = urlTemplate.replace('TASK_ID_PLACEHOLDER', currentTask.id);
+
+                    const deleteForm = document.createElement('form');
+                    deleteForm.method = 'POST';
+                    deleteForm.action = deleteUrl;
+                    deleteForm.innerHTML = `@csrf @method('DELETE')`;
+                    document.body.appendChild(deleteForm);
+                    deleteForm.submit();
+                }
             }
         }
 
         function updateModalCategoriesInput() {
-            document.getElementById('modalTaskCategories').value = modalSelectedCategories.join(',');
+            const categoryInput = document.getElementById('modalTaskCategories');
+            if(categoryInput) {
+                categoryInput.value = modalSelectedCategories.join(',') || '';
+            }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editTaskForm = document.getElementById('edit-task-form');
+            if (editTaskForm) {
+                editTaskForm.addEventListener('submit', function(event) {
+                    updateModalCategoriesInput();
+                });
+            }
+        });
 
         function addTagToModal(category, updateInput = true) {
             if (!category || modalSelectedCategories.includes(category)) return;
@@ -366,22 +584,28 @@
             const container = document.querySelector('.tags-container');
             const addButton = document.getElementById('add-category-btn');
 
-            const newButton = document.createElement('button');
-            newButton.type = 'button';
-            newButton.className = 'tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-blue-600 bg-blue-600 text-white relative group';
-            newButton.dataset.value = category;
-            newButton.textContent = category;
+            if (container && addButton) {
+                const newButton = document.createElement('button');
+                newButton.type = 'button';
+                newButton.className = 'tag-toggle flex-shrink-0 flex items-center justify-center px-3 py-1 rounded-lg gap-2 border border-blue-600 bg-blue-600 text-white relative group';
+                newButton.dataset.value = category;
+                newButton.textContent = category;
 
-            const deleteSpan = document.createElement('span');
-            deleteSpan.className = 'delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:flex hover:bg-red-600';
-            deleteSpan.innerHTML = '&times;';
-            deleteSpan.onclick = (e) => removeModalTag(e, newButton);
+                const deleteSpan = document.createElement('span');
+                deleteSpan.className = 'delete-tag hidden absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs group-hover:flex hover:bg-red-600';
+                deleteSpan.innerHTML = '&times;';
+                deleteSpan.onclick = (e) => removeModalTag(e, newButton);
 
-            newButton.appendChild(deleteSpan);
-            container.insertBefore(newButton, addButton);
-            modalSelectedCategories.push(category);
+                newButton.appendChild(deleteSpan);
+                container.insertBefore(newButton, addButton);
+                modalSelectedCategories.push(category);
 
-            if (updateInput) updateModalCategoriesInput();
+                if (updateInput) updateModalCategoriesInput();
+                const isEditing = !document.getElementById('save-task-btn').classList.contains('hidden');
+                if (isEditing) {
+                    deleteSpan.classList.remove('hidden');
+                }
+            }
         }
 
         function removeModalTag(event, tagButton) {
@@ -394,12 +618,12 @@
 
         function showTagDropdown() {
             const dropdown = document.getElementById('tag-dropdown');
-            dropdown.classList.toggle('hidden');
+            if(dropdown) dropdown.classList.toggle('hidden');
         }
 
         function addTagFromDropdown(category) {
             addTagToModal(category);
-            showTagDropdown(); // Hide dropdown after selection
+            showTagDropdown();
         }
 
         function handleCustomTagInput(event) {
@@ -412,10 +636,6 @@
                 }
             }
         }
-
-        document.getElementById('taskModal').addEventListener('click', (e) => {
-            if (e.target.id === 'taskModal') closeModal();
-        });
     </script>
 
     <script>
@@ -424,6 +644,7 @@
             const searchInput = document.getElementById('search-input');
             const mobileSearchInput = document.getElementById('mobile-search-input');
             const categoryFilter = document.getElementById('category-filter');
+            const mainContent = document.getElementById('main-content');
 
             function debounce(func, delay = 300) {
                 let timeout;
@@ -434,11 +655,11 @@
             }
 
             async function fetchAndRenderTasks() {
-                const searchTerm = searchInput.value || mobileSearchInput.value;
-                const category = categoryFilter.value;
+                const searchTerm = (searchInput ? searchInput.value : '') || (mobileSearchInput ? mobileSearchInput.value : '');
+                const category = categoryFilter ? categoryFilter.value : '';
                 const params = new URLSearchParams({ search: searchTerm, category: category });
 
-                document.getElementById('main-content').style.opacity = '0.5';
+                if(mainContent) mainContent.style.opacity = '0.5';
                 try {
                     const response = await fetch(`{{ route('dashboard') }}?${params.toString()}`, {
                         method: 'GET',
@@ -450,24 +671,35 @@
                 } catch (error) {
                     console.error('Failed to fetch tasks:', error);
                 } finally {
-                    document.getElementById('main-content').style.opacity = '1';
+                    if(mainContent) mainContent.style.opacity = '1';
                 }
             }
 
             function renderTasks(tasksByStatus) {
                 const containerIds = {
                     todo: 'todo-container',
-                    in_progress: 'inprogress-container',
+                    in_progress: 'in_progress-container',
                     completed: 'completed-container'
                 };
+
+                const searchTerm = (searchInput && searchInput.value) || (mobileSearchInput && mobileSearchInput.value);
+                const category = categoryFilter && categoryFilter.value;
+
                 for (const status in containerIds) {
                     const container = document.getElementById(containerIds[status]);
+                    if (!container) continue;
+
                     container.innerHTML = '';
                     const tasks = tasksByStatus[status] || [];
+
                     if (tasks.length > 0) {
                         tasks.forEach(task => container.insertAdjacentHTML('beforeend', createTaskCard(task)));
                     } else {
-                        container.innerHTML = `<div class="w-72 h-80 flex-shrink-0 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center"><p class="text-gray-400">No tasks found.</p></div>`;
+                        let message = "No tasks in this section.";
+                        if (searchTerm || category) {
+                            message = "No tasks match your filter.";
+                        }
+                        container.innerHTML = `<div class="w-72 h-80 flex-shrink-0 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center"><p class="text-gray-400">${message}</p></div>`;
                     }
                 }
             }
@@ -477,21 +709,28 @@
                 const priorityClass = task.priority === 'high' ? 'bg-red-400' : 'bg-green-400';
                 const priorityText = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
                 const statusColors = { todo: '#336699', in_progress: '#5B84AE', completed: '#86BBD8' };
-                let categoriesHtml = (task.category || []).map(cat => `<span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold" style="background-color: #ee6c4d;">${cat}</span>`).join('');
+
+                let categoriesHtml = '';
+                if(task.category && Array.isArray(task.category)) {
+                    categoriesHtml = task.category.map(cat => `<span class="bg-opacity-1 px-2 py-1 rounded-full text-xs font-semibold" style="background-color: #ee6c4d;">${cat}</span>`).join('');
+                }
+
                 let imageHtml = task.image_url ? `<div class="h-36 w-full mb-3 overflow-hidden rounded-lg"><img src="${task.image_url}" alt="Task Image" class="h-full w-full object-cover" /></div>` : '';
-                const taskJsonString = JSON.stringify(task).replace(/'/g, "\\'");
+
+                const taskJsonString = JSON.stringify(task).replace(/'/g, '&apos;');
 
                 return `
                     <div class="w-72 h-80 flex-shrink-0 rounded-2xl p-4 shadow-lg cursor-pointer transition-all hover:shadow-xl flex flex-col text-white"
-                         style="background-color: <span class="math-inline">\{statusColors\[task\.status\]\};"
-onclick\='showTaskDetails\(</span>{taskJsonString})'>
-                        <span class="math-inline">\{imageHtml\}
-<div class\="flex\-grow flex flex\-col"\>
-<h3 class\="font\-bold text\-lg line\-clamp\-2"\></span>{task.task_name}</h3>
+                         style="background-color: ${statusColors[task.status]};"
+                         data-task='${taskJsonString}'
+                         onclick="showTaskDetails(this)">
+                        ${imageHtml}
+                        <div class="flex-grow flex flex-col">
+                            <h3 class="font-bold text-lg line-clamp-2">${task.task_name}</h3>
                             <div class="mt-auto">
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="flex items-center"><i class="far fa-calendar-alt mr-1"></i> ${deadline}</span>
-                                    <span class="px-2 py-1 rounded-full text-xs <span class="math-inline">\{priorityClass\}"\></span>{priorityText}</span>
+                                    <span class="px-2 py-1 rounded-full text-xs ${priorityClass}">${priorityText}</span>
                                 </div>
                                 <div class="mt-2 flex flex-wrap gap-1">${categoriesHtml}</div>
                             </div>
@@ -503,7 +742,7 @@ onclick\='showTaskDetails\(</span>{taskJsonString})'>
             const debouncedFetch = debounce(fetchAndRenderTasks);
             if (searchInput) searchInput.addEventListener('input', debouncedFetch);
             if (mobileSearchInput) mobileSearchInput.addEventListener('input', debouncedFetch);
-            if (categoryFilter) categoryFilter.addEventListener('change', debouncedFetch);
+            if (categoryFilter) categoryFilter.addEventListener('change', fetchAndRenderTasks);
         });
     </script>
 </body>
