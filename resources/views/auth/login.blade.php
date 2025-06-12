@@ -15,7 +15,7 @@
 
             <div class="w-full md:w-1/2 p-8 md:p-12 lg:p-16">
                 <div class="mb-8">
-                    <img src="{{ asset('images/logo-krud.png') }}" alt="Logo Krud" class="h-8 w-auto">
+                    <img src="{{ asset('images/logo-krud.png') }}" alt="Logo Krud" class="h-auto w-30">
                 </div>
 
                 <h1 class="text-3xl md:text-4xl font-bold mb-2 text-black font-krona">Welcome!!</h1>

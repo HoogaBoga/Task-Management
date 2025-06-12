@@ -98,7 +98,7 @@
           <div class="bg-[#E0FBFC] rounded-2xl p-6 md:p-8">
 
             <header class="flex items-center mb-8">
-              <img src="{{ asset('images/logo-placeholder.svg') }}" alt="Logo" class="w-12 h-12 md:w-14 md:h-14" />
+              <img src="{{ asset('images/logo-krud.png') }}" alt="Logo" class="w-20 h-20 md:w-35 md:h-35" />
               <span class="ml-4 text-xl md:text-2xl font-krona-one">Profile</span>
             </header>
 
