@@ -36,7 +36,7 @@
 
 <div class="bg-[#E0FBFC] rounded-2xl p-6 md:p-8">
   <header class="flex items-center mb-8">
-    <img src="{{ asset('images/logo-placeholder.svg') }}" alt="Logo" class="w-12 h-12 md:w-14 md:h-14" />
+    <img src="{{ asset('images/logo-placeholder.svg') }}" alt="Logo" class="w-18 h-18 md:w-18 md:h-18" />
     <span class="ml-4 text-xl md:text-2xl font-krona-one">Change Password</span>
   </header>
 
