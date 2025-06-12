@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         Log::info('DashboardController@index called');
 
@@ -20,32 +20,65 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        // 1. Fetch tasks using the CORRECT key: $user->supabase_id
-        $tasks = Task::where('user_id', $user->supabase_id)->get();
-        $tasksByStatus = $tasks->groupBy('status');
+        // 1. Start building the query for tasks
+        $tasksQuery = Task::where('user_id', $user->supabase_id);
 
-        // 2. Group tasks by status (using your original method for consistency)
+        // 2. Apply search filter if provided
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchTerm = $request->input('search');
+            // Search in both task_name and task_description
+            $tasksQuery->where(function ($query) use ($searchTerm) {
+                $query->where('task_name', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('task_description', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        // 3. Apply category filter if provided
+        if ($request->has('category') && $request->input('category') != '') {
+            $category = $request->input('category');
+            // Use whereJsonContains for columns storing JSON arrays
+            $tasksQuery->whereJsonContains('category', $category);
+        }
+
+        // 4. Execute the query
+        $tasks = $tasksQuery->orderBy('created_at', 'desc')->get();
+
+        // Ensure categories are properly handled
+        $tasks->each(function ($task) {
+            if (is_string($task->category)) {
+                $task->category = json_decode($task->category, true) ?? [];
+            }
+        });
+
         $tasksByStatus = [
-            'todo' => $tasks->where('status', 'todo'),
-            'in_progress' => $tasks->where('status', 'in_progress'),
-            'completed' => $tasks->where('status', 'completed'),
+            'todo' => $tasks->where('status', 'todo')->values(),
+            'in_progress' => $tasks->where('status', 'in_progress')->values(),
+            'completed' => $tasks->where('status', 'completed')->values(),
         ];
 
-        // 3. Get all unique categories from the user's tasks
-        // Updated to handle JSON arrays instead of comma-separated strings
-        $allCategories = $tasks->pluck('category')
+        // 5. Check if the request is an AJAX request (wants JSON)
+        if ($request->wantsJson()) {
+            // If yes, just return the filtered task data as JSON
+            return response()->json($tasksByStatus);
+        }
+
+        // --- For initial page load ONLY ---
+
+        // Get all unique categories from ALL user tasks (for the filter dropdown)
+        $allUserTasks = Task::where('user_id', $user->supabase_id)->get();
+        $allCategories = $allUserTasks->pluck('category')
             ->whereNotNull()
-            ->flatten() // Flatten arrays of categories
-            ->filter() // Remove empty values
-            ->unique() // Get unique categories
-            ->sort() // Sort alphabetically
-            ->values() // Re-index array
+            ->flatten()
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
             ->all();
 
-        // 4. Pass BOTH tasks and categories to the view.
+        // If it's a normal browser request, return the full view
         return view('dashboard', [
             'tasksByStatus' => $tasksByStatus,
-            'categories' => $allCategories,
+            'categories' => $allCategories, // Pass all categories for the filter dropdown
         ]);
     }
 }

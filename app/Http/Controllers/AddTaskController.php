@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
+use Supabase\Storage\StorageClient;
+use Illuminate\Support\Facades\Storage;
 
 
 class AddTaskController extends Controller
@@ -21,130 +23,59 @@ class AddTaskController extends Controller
     // Handle the form submission and upload the file to Supabase
     public function store(Request $request)
     {
-
-        Log::info('AddTaskController@store called');
-        Log::info('Request data:', $request->all()); // Debug: Log all request data
-
-        $user = Auth::user();
-        if (!$user) {
-            Log::warning('User not logged in when trying to add task');
-            return redirect()->route('login')->with('error', 'Please log in first.');
-        }
-
-        Log::info('User authenticated:', ['user_id' => $user->id, 'supabase_id' => $user->supabase_id]);
-
-        // Validate the request
         $validated = $request->validate([
             'task_name' => 'required|string|max:255',
             'task_description' => 'nullable|string',
             'task_deadline' => 'nullable|date',
             'priority' => 'required|in:low,high',
-            'status' => 'nullable|in:todo,in_progress,completed',
-            'categories' => 'nullable|string|max:255', // Fixed: was 'category' in validation but 'categories' in form
-            'task_image' => 'nullable|image|max:2048', // Max 2MB
+            'status' => 'required|in:todo,in_progress,completed',
+            'categories' => 'nullable|string',
         ]);
 
-        Log::info('Validation passed:', $validated);
+        // Convert categories string to array and clean it
+        if (isset($validated['categories'])) {
+            $categories = array_filter(array_map('trim', explode(',', $validated['categories'])));
+            $validated['category'] = $categories;
+            unset($validated['categories']);
+        } else {
+            $validated['category'] = [];
+        }
 
-        $imageUrl = null;
-        $file = $request->file('task_image');
+        $task = new Task($validated);
+        $task->user_id = Auth::user()->supabase_id;
 
-        if ($file) {
-            Log::info('Image uploaded with original name: ' . $file->getClientOriginalName());
+        if ($request->hasFile('task_image')) {
+            $file = $request->file('task_image');
+            $fileName = Str::uuid() . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-            $bucket = env('SUPABASE_BUCKET', 'tasks');
-            $supabaseUrl = env('SUPABASE_URL');
-            $supabaseKey = env('SUPABASE_SERVICE_ROLE');
-
-            // Check if Supabase credentials are set
-            if (!$supabaseUrl || !$supabaseKey) {
-                Log::error('Supabase credentials missing', [
-                    'supabase_url' => $supabaseUrl ? 'set' : 'missing',
-                    'supabase_key' => $supabaseKey ? 'set' : 'missing'
-                ]);
-                return back()->with('error', 'Supabase configuration error.');
+            // Get the file content and ensure it's properly encoded
+            $fileContent = file_get_contents($file->getRealPath());
+            if ($fileContent === false) {
+                return redirect()->back()->with('error', 'Failed to read image file.');
             }
 
-            // Fixed: Use getClientOriginalExtension() instead of Str::slug()
-            $fileName = 'tasks/' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-
+            // Upload to Supabase storage using HTTP client
             try {
-                $uploadResponse = Http::withHeaders([
-                    'apikey' => $supabaseKey,
-                    'Authorization' => 'Bearer ' . $supabaseKey,
-                ])->attach(
-                    'file', file_get_contents($file), $fileName, [
-                        'Content-Type' => $file->getMimeType(),
-                    ]
-                )->post("$supabaseUrl/storage/v1/object/$bucket/$fileName");
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.supabase.service_role_key'),
+                    'Content-Type' => $file->getMimeType(),
+                ])->withBody($fileContent, $file->getMimeType())
+                  ->put(
+                    config('services.supabase.url') . '/storage/v1/object/task-images/tasks/' . $fileName
+                );
 
-                Log::info('Supabase upload response:', [
-                    'status' => $uploadResponse->status(),
-                    'body' => $uploadResponse->body()
-                ]);
-
-                if ($uploadResponse->failed()) {
-                    Log::error('Failed to upload task image to Supabase.', [
-                        'status' => $uploadResponse->status(),
-                        'response' => $uploadResponse->body(),
-                    ]);
-                    return back()->with('error', 'Failed to upload task image.');
+                if ($response->successful()) {
+                    // Set the image URL to the Supabase public URL
+                    $task->image_url = config('services.supabase.url') . '/storage/v1/object/public/task-images/tasks/' . $fileName;
+                } else {
+                    return redirect()->back()->with('error', 'Failed to upload image to storage.');
                 }
-
-                $imageUrl = "$supabaseUrl/storage/v1/object/public/$bucket/$fileName";
-                Log::info('Image uploaded successfully. Public URL: ' . $imageUrl);
-
             } catch (\Exception $e) {
-                Log::error('Exception while uploading image', [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                return back()->with('error', 'Error uploading image: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Error uploading image: ' . $e->getMessage());
             }
         }
 
-        try {
-            Log::info('Creating task with data:', [
-                'user_id' => $user->supabase_id,
-                'task_name' => $request->task_name,
-                'priority' => $request->priority,
-                'task_deadline' => $request->task_deadline,
-                'task_description' => $request->task_description,
-                'category' => $request->categories, // Fixed: use 'categories' from form
-                'image_url' => $imageUrl,
-                'status' => $request->input('status', 'todo'),
-            ]);
-
-            // Handle categories - convert to array if it's a string
-            $categories = $request->categories;
-            if (is_string($categories)) {
-                // If it's comma-separated string, convert to array
-                $categories = array_map('trim', explode(',', $categories));
-            } elseif (is_null($categories)) {
-                $categories = [];
-            }
-
-            $task = Task::create([
-                'user_id' => $user->supabase_id,
-                'task_name' => $request->task_name,
-                'priority' => $request->priority,
-                'task_deadline' => $request->task_deadline,
-                'task_description' => $request->task_description,
-                'category' => $categories, // Now properly formatted as array for JSON
-                'image_url' => $imageUrl,
-                'status' => $request->input('status', 'todo'),
-            ]);
-
-            Log::info('Task created successfully with ID: ' . $task->id);
-
-        } catch (\Exception $e) {
-            Log::error('Error creating task: ' . $e->getMessage(), [
-                'exception' => $e,
-                'trace' => $e->getTraceAsString()
-            ]);
-            return back()->with('error', 'Failed to create task: ' . $e->getMessage());
-        }
-
+        $task->save();
 
         return redirect()->route('dashboard')->with('success', 'Task created successfully!');
     }
@@ -166,10 +97,13 @@ class AddTaskController extends Controller
             'categories' => 'nullable|string',
         ]);
 
-        // Convert categories string to array
+        // Convert categories string to array and clean it
         if (isset($validated['categories'])) {
-            $validated['category'] = array_filter(explode(',', $validated['categories']));
+            $categories = array_filter(array_map('trim', explode(',', $validated['categories'])));
+            $validated['category'] = $categories;
             unset($validated['categories']);
+        } else {
+            $validated['category'] = [];
         }
 
         // Update the task with validated data
@@ -192,4 +126,5 @@ class AddTaskController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Task deleted successfully.');
     }
+
 }
